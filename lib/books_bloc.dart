@@ -4,26 +4,21 @@ import 'package:flutter/material.dart';
 import 'models/book.dart';
 import 'books_database.dart';
 
-
-class BooksBloc extends ChangeNotifier{
+class BooksBloc extends ChangeNotifier {
   static LocalDatabase _db = LocalDatabase();
 
-  BooksBloc(){
-    Future.delayed(Duration(seconds: 5)).whenComplete((){
-      addBook(Book(name: "ldfjsf", pageCount: 123, writer: "asf"));
-    });
-  }
+  BooksBloc();
 
   Future<List<Book>> books = _db.books();
 
-  void addBook(Book book) async{
+  void addBook(Book book) async {
     List<Book> books = await this.books;
     books.add(book);
     notifyListeners();
     _db.insertBook(book);
   }
 
-  void removeBook(Book book) async{
+  void removeBook(Book book) async {
     List<Book> books = await this.books;
     //remove book that has the same id
     books.removeWhere((b) => b.id == book.id);
@@ -31,16 +26,14 @@ class BooksBloc extends ChangeNotifier{
     notifyListeners();
   }
 
-  void updateBook(Book book) async{
+  void updateBook(Book book) async {
     List<Book> books = await this.books;
 
-    int index = books.indexWhere((b)=>b.id == book.id);
-    if(index != -1){
+    int index = books.indexWhere((b) => b.id == book.id);
+    if (index != -1) {
       books[index] = book;
       _db.updateBook(book);
       notifyListeners();
     }
   }
-
 }
-

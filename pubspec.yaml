@@ -20,6 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   provider:
+  image_picker: ^0.6.1+10
   sqflite:
   path:
 
