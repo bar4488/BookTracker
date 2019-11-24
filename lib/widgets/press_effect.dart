@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
 
 class PressEffect extends StatefulWidget {
-  PressEffect({
-    Key key,
-    this.builder,
-    this.child,
-    @required this.shape,
-    @required this.color,
-    pressedColor
-  }) : pressedColor = pressedColor ?? Color.lerp(color, Colors.black, 0.2), super(key: key){
+  PressEffect(
+      {Key key,
+      this.builder,
+      this.child,
+      @required this.shape,
+      this.color,
+      this.height,
+      this.width,
+      this.onTap,
+      pressedColor})
+      : pressedColor = pressedColor ?? Color.lerp(color, Colors.black, 0.2),
+        super(key: key) {
     //use a builder or a child
     assert((builder == null) != (child == null));
   }
 
-  final Function<Widget>(double value) builder;
+  final Widget Function(double value) builder;
+  final Function() onTap;
   final Widget child;
   final ShapeBorder shape;
   final Color color;
   final Color pressedColor;
+  final double height;
+  final double width;
 
   @override
   _PressEffectState createState() => _PressEffectState();
@@ -55,15 +62,19 @@ class _PressEffectState extends State<PressEffect>
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(
-          horizontal: 16 + (_animationTween.value - 1) * -10,
-          vertical: 16 + (_animationTween.value - 1) * -10),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16 + (_animationTween.value - 1) * -10,
+        vertical: 16 + (_animationTween.value - 1) * -10,
+      ),
+      width: widget.width != null ? widget.width + 32 : null,
+      height: widget.height != null ?widget.height + 32 : null,
       child: Material(
-        elevation: isPressed ? 5 : 25,
+        elevation: _animationController.isAnimating ? 5 : 25,
         shape: widget.shape,
         color: Color.lerp(
             widget.color, widget.pressedColor, -(_animationTween.value - 1)),
         child: GestureDetector(
+          onTap: widget.onTap,
           onTapDown: _onTapDown,
           onTapUp: _onTapUp,
           onTapCancel: _onTapCancel,
