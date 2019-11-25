@@ -1,37 +1,35 @@
 import 'package:flutter/material.dart';
 
-class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
+class MainAppBar extends StatelessWidget {
   const MainAppBar({
     Key key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    EdgeInsets padding = MediaQuery.of(context).padding;
     return Container(
-      padding: padding.add(EdgeInsets.symmetric(horizontal: 8)),
-      height: preferredSize.height + padding.top,
+      padding: EdgeInsets.symmetric(horizontal: 8),
       child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          SizedBox(
+          Container(
             width: 40,
             height: 40,
-            child: RaisedButton(
+            child: Material(
               elevation: 10,
-              onPressed: () {},
-              padding: EdgeInsets.all(0),
               shape: ContinuousRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: Container(
-                child: Icon(Icons.menu),
+              child: InkWell(
+                onTap: () {},
+                child: Container(
+                  child: Icon(Icons.menu),
+                ),
               ),
             ),
           ),
-          SizedBox(width: 16,),
+          SizedBox(
+            width: 16,
+          ),
           Expanded(
             child: SizedBox(
               height: 40,
@@ -45,7 +43,10 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
                 child: Container(
                   margin: EdgeInsets.only(left: 16),
                   alignment: Alignment.centerLeft,
-                  child: Text("Book Reader", style: TextStyle(fontSize: 16),),
+                  child: Text(
+                    "Book Reader",
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
               ),
             ),
@@ -55,6 +56,5 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  @override
   Size get preferredSize => Size.fromHeight(56);
 }
