@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:book_tracker/books_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'models/book.dart';
 import 'widgets/press_effect.dart';
 
@@ -11,14 +13,12 @@ class BookItem extends StatefulWidget {
     @required this.book,
     this.onLongPress,
     this.onTap,
-    this.onDelete,
   }) : super(key: key);
 
   final Book book;
   final bool isDeleting;
   final Function() onTap;
   final Function() onLongPress;
-  final Function() onDelete;
 
   @override
   _BookItemState createState() => _BookItemState();
@@ -50,6 +50,7 @@ class _BookItemState extends State<BookItem>
 
   @override
   Widget build(BuildContext context) {
+    BooksBloc bloc = Provider.of<BooksBloc>(context);
     if (widget.isDeleting && !_animationController.isAnimating)
       _animationController.forward();
     if (!widget.isDeleting &&
@@ -128,7 +129,11 @@ class _BookItemState extends State<BookItem>
               },
               child: widget.isDeleting ? 
               FloatingActionButton(
-                onPressed: () {},
+                onPressed:  () {
+                  setState(() {
+                    bloc.removeBook(widget.book);
+                  });
+                },
                 elevation: 10,
                 child: Icon(
                   Icons.close,
@@ -141,5 +146,11 @@ class _BookItemState extends State<BookItem>
         ],
       ),
     );
+  }
+  
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 }

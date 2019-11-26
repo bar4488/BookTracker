@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 class MainAppBar extends StatelessWidget {
   const MainAppBar({
     Key key,
+    this.icon,
+    this.onPress,
   }) : super(key: key);
+
+  final IconData icon;
+  final Function() onPress;
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +25,12 @@ class MainAppBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(30),
               ),
               child: InkWell(
-                onTap: () {},
+                onTap: () {
+                  if(onPress != null)
+                    onPress();
+                },
                 child: Container(
-                  child: Icon(Icons.menu),
+                  child: Icon(icon ?? Icons.menu),
                 ),
               ),
             ),

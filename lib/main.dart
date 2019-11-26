@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.red,
         ),
         home: MyHomePage(title: 'Flutter Demo Home Page'),
       ),
@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           Widget item = BookItem(
                             book: books[index],
                             isDeleting: currentlyDeleting,
-                            onLongPress: (){
+                            onLongPress: () {
                               setState(() {
                                 currentlyDeleting = !currentlyDeleting;
                               });
@@ -90,7 +90,15 @@ class _MyHomePageState extends State<MyHomePage> {
               top: padding.top + 8,
               left: 0,
               right: 0,
-              child: MainAppBar(),
+              child: MainAppBar(
+                icon: currentlyDeleting ? Icons.arrow_back : null,
+                onPress: (){
+                  setState(() {
+                    if(currentlyDeleting)
+                      currentlyDeleting = false;
+                  });
+                }
+              ),
             ),
           ],
         ),
