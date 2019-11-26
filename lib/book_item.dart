@@ -13,11 +13,13 @@ class BookItem extends StatefulWidget {
     @required this.book,
     this.onLongPress,
     this.onTap,
+    this.onDelete,
   }) : super(key: key);
 
   final Book book;
   final bool isDeleting;
   final Function() onTap;
+  final Function() onDelete;
   final Function() onLongPress;
 
   @override
@@ -123,31 +125,35 @@ class _BookItemState extends State<BookItem>
             left: 0,
             right: 0,
             child: AnimatedSwitcher(
-              duration: Duration(milliseconds: 200),
-              transitionBuilder: (child, animation){
-                return ScaleTransition(child: child, scale: animation);
-              },
-              child: widget.isDeleting ? 
-              FloatingActionButton(
-                onPressed:  () {
-                  setState(() {
-                    bloc.removeBook(widget.book);
-                  });
+                duration: Duration(milliseconds: 200),
+                transitionBuilder: (child, animation) {
+                  return ScaleTransition(child: child, scale: animation);
                 },
-                elevation: 10,
-                child: Icon(
-                  Icons.close,
-                  color: Colors.black,
-                ),
-                backgroundColor: Colors.white,
-              ) : SizedBox()
-            ),
+                child: Transform.scale(
+                  scale: 0.8,
+                  child: widget.isDeleting
+                      ? FloatingActionButton(
+                          onPressed: () {
+                            setState(() {
+                              bloc.removeBook(widget.book);
+                              if (widget.onDelete != null) widget.onDelete();
+                            });
+                          },
+                          elevation: 10,
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.black,
+                          ),
+                          backgroundColor: Colors.white,
+                        )
+                      : SizedBox(),
+                )),
           )
         ],
       ),
     );
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();

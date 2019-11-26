@@ -43,76 +43,92 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final bloc = Provider.of<BooksBloc>(context);
     EdgeInsets padding = MediaQuery.of(context).padding;
-    return Scaffold(
-      body: Container(
-        child: Stack(
-          children: <Widget>[
-            Container(
-              child: FutureBuilder(
-                future: bloc.books,
-                builder: (context, snapshot) {
-                  Widget widget;
-                  if (snapshot.hasData) {
-                    List<Book> books = snapshot.data;
-                    widget = GridView.builder(
-                        padding: MediaQuery.of(context)
-                            .padding
-                            .add(EdgeInsets.only(top: 56)),
-                        physics: BouncingScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2, childAspectRatio: 3 / 4),
-                        itemCount: books.length,
-                        itemBuilder: (context, index) {
-                          Widget item = BookItem(
-                            book: books[index],
-                            isDeleting: currentlyDeleting,
-                            onLongPress: () {
-                              setState(() {
-                                currentlyDeleting = !currentlyDeleting;
-                              });
-                            },
-                          );
-                          return item;
-                        });
-                  } else {
-                    widget = Center(child: Text("loading books..."));
+    return WillPopScope(
+      onWillPop: (){
+        if(currentlyDeleting){
+          setState(() {
+            currentlyDeleting = false;
+          });
+          return Future<bool>(()=>false);
+        }
+        return Future<bool>(()=>true);
+      },
+          child: Scaffold(
+        body: Container(
+          child: Stack(
+            children: <Widget>[
+              Container(
+                child: FutureBuilder(
+                  future: bloc.books,
+                  builder: (context, snapshot) {
+                    Widget widget;
+                    if (snapshot.hasData) {
+                      List<Book> books = snapshot.data;
+                      widget = GridView.builder(
+                          padding: MediaQuery.of(context)
+                              .padding
+                              .add(EdgeInsets.only(top: 56)),
+                          physics: BouncingScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2, childAspectRatio: 3 / 4),
+                          itemCount: books.length,
+                          itemBuilder: (context, index) {
+                            Widget item = BookItem(
+                              book: books[index],
+                              isDeleting: currentlyDeleting,
+                              onLongPress: () {
+                                setState(() {
+                                  currentlyDeleting = !currentlyDeleting;
+                                });
+                              },
+                              onDelete: () {
+                                setState(() {
+                                  currentlyDeleting = false;
+                                });
+                              },
+                            );
+                            return item;
+                          });
+                    } else {
+                      widget = Center(child: Text("loading books..."));
+                    }
+                    return AnimatedSwitcher(
+                      duration: Duration(milliseconds: 1500),
+                      switchInCurve: Curves.easeIn,
+                      switchOutCurve: Curves.easeOut,
+                      child: widget,
+                    );
+                  },
+                ),
+              ),
+              Positioned(
+                top: padding.top + 8,
+                left: 0,
+                right: 0,
+                child: MainAppBar(
+                  icon: currentlyDeleting ? Icons.arrow_back : null,
+                  onPress: (){
+                    setState(() {
+                      if(currentlyDeleting)
+                        currentlyDeleting = false;
+                    });
                   }
-                  return AnimatedSwitcher(
-                    duration: Duration(milliseconds: 1500),
-                    switchInCurve: Curves.easeIn,
-                    switchOutCurve: Curves.easeOut,
-                    child: widget,
-                  );
-                },
+                ),
               ),
-            ),
-            Positioned(
-              top: padding.top + 8,
-              left: 0,
-              right: 0,
-              child: MainAppBar(
-                icon: currentlyDeleting ? Icons.arrow_back : null,
-                onPress: (){
-                  setState(() {
-                    if(currentlyDeleting)
-                      currentlyDeleting = false;
-                  });
-                }
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => AddBookPage(),
-            ),
-          );
-        },
-        tooltip: 'Add Book',
-        child: Icon(Icons.add),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AddBookPage(),
+              ),
+            );
+          },
+          tooltip: 'Add Book',
+          child: Icon(Icons.add),
+        ),
       ),
     );
   }

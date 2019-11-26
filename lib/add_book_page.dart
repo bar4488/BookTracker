@@ -20,12 +20,36 @@ class _AddBookPageState extends State<AddBookPage> {
   String writer;
   int pageCount;
 
-  Future getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-
-    setState(() {
-      this.image = image;
-    });
+  void getImage() async {
+    var image;
+    showDialog(
+      context: context,
+      child: AlertDialog(
+        title: Text("Pick from gallary or camera"),
+        actions: <Widget>[
+          FlatButton(
+            child: Text("Camera"),
+            onPressed: () async{
+              image = await ImagePicker.pickImage(source: ImageSource.camera);
+              setState(() {
+                Navigator.of(context).pop();
+                this.image = image;
+              });
+              },
+          ),
+          FlatButton(
+            child: Text("Gallery"),
+            onPressed: () async{
+              image = await ImagePicker.pickImage(source: ImageSource.gallery);
+              setState(() {
+                Navigator.of(context).pop();
+                this.image = image;
+              });
+            },
+          )
+        ],
+      )
+    );
   }
 
   @override
@@ -125,8 +149,10 @@ class _AddBookPageState extends State<AddBookPage> {
       floatingActionButton: FloatingActionButton.extended(
         label: Text("Add Book"),
         onPressed: () {
-          if(_formKey.currentState.validate())
+          if(_formKey.currentState.validate()){
             _addBook(bloc);
+            Navigator.of(context).pop();
+          }
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
