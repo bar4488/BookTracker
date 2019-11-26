@@ -6,10 +6,11 @@ import 'package:sqflite/sqflite.dart';
 
 class LocalDatabase{
 
-  Future<Database> database;
+  static Future<Database> database;
 
   LocalDatabase(){
-    database = _initDatabase();
+    if(database == null)
+      database = _initDatabase();
   }
 
   Future<Database> _initDatabase() async{
@@ -24,19 +25,19 @@ class LocalDatabase{
           "CREATE TABLE books(id INTEGER PRIMARY KEY, name TEXT, writer TEXT, imagePath TEXT, pageCount INTEGER, currentPage INTEGER)",
         );
         db.execute(
-          "CREATE TABLE readingSession(id INTEGER PRIMARY KEY, bookId int, startPage int, endPage int, startTime int, duration int)",
+          "CREATE TABLE readingSessions(id INTEGER PRIMARY KEY, bookId int, startPage int, endPage int, startTime int, duration int)",
         );
       },
       // Set the version. This executes the onCreate function and provides a
       // path to perform database upgrades and downgrades.
-      version: 1,
+      version: 2,
     );
   }
 
-  Future insertBook(Book book) async{
+  Future<int> insertBook(Book book) async{
     final Database db = await database;
 
-    await db.insert("books", book.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return db.insert("books", book.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Book>> books() async{

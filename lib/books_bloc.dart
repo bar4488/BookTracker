@@ -13,9 +13,10 @@ class BooksBloc extends ChangeNotifier {
 
   void addBook(Book book) async {
     List<Book> books = await this.books;
+    int id = await _db.insertBook(book);
+    book.id = id;
     books.add(book);
     notifyListeners();
-    _db.insertBook(book);
   }
 
   void removeBook(Book book) async {

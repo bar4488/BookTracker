@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:book_tracker/books_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -98,7 +97,7 @@ class _BookItemState extends State<BookItem>
             margin: EdgeInsets.all(widget.isDeleting ? 5 : 0),
             child: PressEffect(
               onLongPress: widget.onLongPress,
-              onTap: widget.onTap,
+              onTap: !widget.isDeleting ? widget.onTap : null,
               child: ClipPath(
                 clipper: ShapeBorderClipper(
                   shape: ContinuousRectangleBorder(
@@ -108,16 +107,31 @@ class _BookItemState extends State<BookItem>
                 child: Stack(
                   fit: StackFit.expand,
                   children: <Widget>[
-                    Container(
-                      decoration: ShapeDecoration(
-                        image: widget.book.imagePath != null
-                            ? DecorationImage(
-                                fit: BoxFit.cover,
-                                image: FileImage(File(widget.book.imagePath)),
-                              )
-                            : null,
-                        shape: ContinuousRectangleBorder(
-                          borderRadius: BorderRadius.circular(100),
+                    Hero(
+                      tag: "cover" + widget.book.id.toString(),
+                      child: Container(
+                        decoration: ShapeDecoration(
+                          image: widget.book.imagePath != null
+                              ? DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: FileImage(File(widget.book.imagePath)),
+                                )
+                              : null,
+                          shape: ContinuousRectangleBorder(
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      left: 0,
+                      child: Hero(
+                        tag: "opacity" + widget.book.id.toString(),
+                        child: Container(
+                          height: 50,
+                          color: Colors.black.withOpacity(0.5),
                         ),
                       ),
                     ),
@@ -127,11 +141,35 @@ class _BookItemState extends State<BookItem>
                       left: 0,
                       child: Container(
                         height: 50,
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.transparent,
                         child: Center(
-                          child: Text(
-                            widget.book.name,
-                            style: TextStyle(color: Colors.white, fontSize: 18),
+                          child: Hero(
+                            tag: "text" + widget.book.id.toString(),
+                            flightShuttleBuilder: (a, b, c, d, e) {
+                              return Material(
+                                color: Colors.transparent,
+                                child: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: Text(
+                                    widget.book.name,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Material(
+                              color: Colors.transparent,
+                              child: FittedBox(
+                                fit: BoxFit.fitWidth,
+                                child: Text(
+                                  widget.book.name,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 18),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -139,7 +177,7 @@ class _BookItemState extends State<BookItem>
                   ],
                 ),
               ),
-              color: Colors.red,
+              color: widget.book.imagePath != null ? Colors.transparent : Colors.red,
               shape: ContinuousRectangleBorder(
                 borderRadius: BorderRadius.circular(100),
               ),

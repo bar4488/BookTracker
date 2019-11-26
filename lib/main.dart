@@ -1,3 +1,5 @@
+import 'package:book_tracker/book_screen/book_screen_screen.dart';
+
 import 'book_item.dart';
 import 'package:book_tracker/add_book_page.dart';
 import 'package:book_tracker/books_bloc.dart';
@@ -41,7 +43,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final bloc = Provider.of<BooksBloc>(context);
-    EdgeInsets padding = MediaQuery.of(context).padding;
     return WillPopScope(
       onWillPop: () {
         if (currentlyDeleting) {
@@ -97,6 +98,21 @@ class _MyHomePageState extends State<MyHomePage> {
                             Widget item = BookItem(
                               book: books[index],
                               isDeleting: currentlyDeleting,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  PageRouteBuilder(
+                                    transitionDuration: Duration(seconds: 1),
+                                    transitionsBuilder: (context, animation, sanimation, child){
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      );
+                                    },
+                                    pageBuilder: (_,__,___) =>
+                                        BookScreenScreen(book: books[index])
+                                  ),
+                                );
+                              },
                               onLongPress: () {
                                 setState(() {
                                   currentlyDeleting = !currentlyDeleting;
