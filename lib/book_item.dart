@@ -50,6 +50,31 @@ class _BookItemState extends State<BookItem>
     super.initState();
   }
 
+  void deleteBook(BooksBloc bloc) {
+    showDialog(
+        context: context,
+        child: AlertDialog(
+          title: Text("Are you sure you want to delete?"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("No"),
+              onPressed: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+            RaisedButton(
+              color: Theme.of(context).primaryColor,
+              child: Text("Yes"),
+              onPressed: () async {
+                bloc.removeBook(widget.book);
+                if (widget.onDelete != null) widget.onDelete();
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     BooksBloc bloc = Provider.of<BooksBloc>(context);
@@ -58,17 +83,17 @@ class _BookItemState extends State<BookItem>
     if (!widget.isDeleting &&
         !_animationController.isDismissed &&
         _animationController.value != 0.5) _animationController.animateTo(0.5);
-    return AnimatedBuilder(
-      animation: _animationController,
-      builder: (context, widget) {
-        return Transform.rotate(
-          angle: (_animationController.value - 0.5) * 0.1,
-          child: widget,
-        );
-      },
-      child: Stack(
-        children: <Widget>[
-          AnimatedContainer(
+    return Stack(
+      children: <Widget>[
+        AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, widget) {
+            return Transform.rotate(
+              angle: (_animationController.value - 0.5) * 0.1,
+              child: widget,
+            );
+          },
+          child: AnimatedContainer(
             duration: Duration(milliseconds: 300),
             margin: EdgeInsets.all(widget.isDeleting ? 5 : 0),
             child: PressEffect(
@@ -120,37 +145,45 @@ class _BookItemState extends State<BookItem>
               ),
             ),
           ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          left: 0,
+          child: AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, widget) {
+              return Transform.scale(
+                scale: _animationController.value * 0.1 + 0.9,
+                child: widget,
+              );
+            },
             child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 200),
-                transitionBuilder: (child, animation) {
-                  return ScaleTransition(child: child, scale: animation);
-                },
-                child: Transform.scale(
-                  scale: 0.8,
-                  child: widget.isDeleting
-                      ? FloatingActionButton(
-                          onPressed: () {
-                            setState(() {
-                              bloc.removeBook(widget.book);
-                              if (widget.onDelete != null) widget.onDelete();
-                            });
-                          },
-                          elevation: 10,
-                          child: Icon(
-                            Icons.close,
-                            color: Colors.black,
-                          ),
-                          backgroundColor: Colors.white,
-                        )
-                      : SizedBox(),
-                )),
-          )
-        ],
-      ),
+              duration: Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) {
+                return ScaleTransition(
+                  child: child,
+                  scale: animation,
+                );
+              },
+              child: widget.isDeleting
+                  ? Transform.scale(
+                      scale: 0.8,
+                      child: FloatingActionButton(
+                        onPressed: () => deleteBook(bloc),
+                        elevation: 10,
+                        child: Icon(
+                          Icons.delete,
+                          color: Colors.black,
+                        ),
+                        backgroundColor: Colors.white,
+                      ),
+                    )
+                  : SizedBox(),
+            ),
+          ),
+        )
+      ],
     );
   }
 

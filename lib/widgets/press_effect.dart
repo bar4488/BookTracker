@@ -91,6 +91,7 @@ class _PressEffectState extends State<PressEffect>
           onTapUp: _onTapUp,
           onLongPressStart: _onLongPressStart,
           onLongPressUp: _onTapCancel,
+          //onLongPress: widget.onLongPress,
           onLongPress: widget.onLongPress,
           onTapCancel: _onTapCancel,
           child:
