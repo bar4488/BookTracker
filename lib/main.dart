@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-          primarySwatch: Colors.red,
+          primarySwatch: Colors.blue,
         ),
         home: MyHomePage(title: 'Flutter Demo Home Page'),
       ),
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               onTap: () {
                                 Navigator.of(context).push(
                                   PageRouteBuilder(
-                                    transitionDuration: Duration(seconds: 1),
+                                    transitionDuration: Duration(milliseconds: 300),
                                     transitionsBuilder: (context, animation, sanimation, child){
                                       return FadeTransition(
                                         opacity: animation,

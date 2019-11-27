@@ -5,7 +5,12 @@ import 'package:book_tracker/book_screen/book_screen_app_bar.dart';
 import 'package:book_tracker/models/book.dart';
 import 'package:book_tracker/models/reading_session.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+import '../models/reading_session.dart';
+import '../widgets/press_effect.dart';
+import 'book_bloc.dart';
 
 class BookScreenScreen extends StatefulWidget {
   const BookScreenScreen({
@@ -24,6 +29,7 @@ class BookScreenScreen extends StatefulWidget {
 class BookScreenScreenState extends State<BookScreenScreen> {
   BookScreenScreenState(this.bloc);
   BookBloc bloc;
+  GlobalKey _listKey;
 
   @override
   void initState() {
@@ -52,27 +58,150 @@ class BookScreenScreenState extends State<BookScreenScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<ReadingSession>>(
-        future: bloc.sessions,
-        builder: (context, snapshot) {
-          Widget appBar = buildSliverAppBar();
-          Widget body;
-          if (snapshot.hasData)
-            body = SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                return ReadingSessionItem(snapshot.data[index]);
-              }, childCount: snapshot.data.length),
-            );
-          else
-            body = SliverFillRemaining(
-              child: Center(
-                child: Text("Loading Sessions..."),
+      appBar: AppBar(),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 2,
+            child: Container(
+                color: Colors.green,
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 2,
+                      child: Container(color: Colors.white),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        color: Colors.yellow,
+                        child: Hero(
+                          tag: "container"+widget.book.id.toString(),
+                          child: PressEffect(
+                            child: ClipPath(
+                              clipper: ShapeBorderClipper(
+                                shape: ContinuousRectangleBorder(
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
+                              ),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: <Widget>[
+                                  Hero(
+                                    tag: "cover" + widget.book.id.toString(),
+                                    child: Container(
+                                      decoration: ShapeDecoration(
+                                        color: Colors.red,
+                                        image: widget.book.imagePath != null
+                                            ? DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: FileImage(File(
+                                                    widget.book.imagePath)),
+                                              )
+                                            : null,
+                                        shape: ContinuousRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    left: 0,
+                                    child: Hero(
+                                      tag:
+                                          "opacity" + widget.book.id.toString(),
+                                      child: Container(
+                                        height: 50,
+                                        color: Colors.black.withOpacity(0.5),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    left: 0,
+                                    child: Container(
+                                      height: 50,
+                                      color: Colors.transparent,
+                                      child: Center(
+                                        child: Hero(
+                                          tag: "text" +
+                                              widget.book.id.toString(),
+                                          flightShuttleBuilder:
+                                              (a, b, c, d, e) {
+                                            return Material(
+                                              color: Colors.transparent,
+                                              child: FittedBox(
+                                                fit: BoxFit.contain,
+                                                child: Text(
+                                                  widget.book.name,
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: FittedBox(
+                                              fit: BoxFit.fitWidth,
+                                              child: Text(
+                                                widget.book.name,
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            color: widget.book.imagePath != null
+                                ? Colors.transparent
+                                : Colors.red,
+                            shape: ContinuousRectangleBorder(
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                )),
+          ),
+          Expanded(
+            flex: 3,
+            child: Container(
+              color: Colors.pink,
+              child: FutureBuilder<List<ReadingSession>>(
+                future: bloc.sessions,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<ReadingSession> sessions = snapshot.data;
+                    return AnimatedList(
+                      itemBuilder: (context, index, animation) {
+                        return ReadingSessionItem(bloc, sessions[index]);
+                      },
+                      key: _listKey,
+                      initialItemCount: sessions.length,
+                    );
+                  }
+                  return Center(
+                    child: Text("Loading..."),
+                  );
+                },
               ),
-            );
-          return CustomScrollView(
-            slivers: <Widget>[appBar, body],
-          );
-        },
+            ),
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.play_arrow),
@@ -85,41 +214,48 @@ class BookScreenScreenState extends State<BookScreenScreen> {
     return SliverAppBar(
       pinned: true,
       expandedHeight: 250,
-      backgroundColor: Colors.red,
       flexibleSpace: FlexibleSpaceBar(
-        title: Container(
-          child: Hero(
-            tag: "text" + widget.book.id.toString(),
-            flightShuttleBuilder: (a, b, c, d, e) {
-              return Material(
-                color: Colors.transparent,
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: Text(
-                    widget.book.name,
-                    style: TextStyle(
-                      color: Colors.white,
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            Container(
+              child: Hero(
+                tag: "text" + widget.book.id.toString(),
+                flightShuttleBuilder: (a, b, c, d, e) {
+                  return Material(
+                    color: Colors.transparent,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Text(
+                        widget.book.name,
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                child: Material(
+                  color: Colors.transparent,
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      widget.book.name,
+                      style: TextStyle(color: Colors.white, fontSize: 24),
                     ),
                   ),
                 ),
-              );
-            },
-            child: Material(
-              color: Colors.transparent,
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: Text(
-                  widget.book.name,
-                  style: TextStyle(color: Colors.white, fontSize: 24),
-                ),
               ),
             ),
-          ),
+          ],
         ),
         background: Hero(
           tag: "cover" + widget.book.id.toString(),
           child: Container(
             decoration: ShapeDecoration(
+              color: widget.book.imagePath == null
+                  ? Colors.red
+                  : Colors.transparent,
               image: widget.book.imagePath != null
                   ? DecorationImage(
                       fit: BoxFit.cover,
@@ -136,12 +272,36 @@ class BookScreenScreenState extends State<BookScreenScreen> {
 }
 
 class ReadingSessionItem extends StatelessWidget {
-  ReadingSessionItem(this.session);
+  ReadingSessionItem(this.bloc, this.session);
 
   final ReadingSession session;
+  final BookBloc bloc;
 
   @override
   Widget build(BuildContext context) {
-    return Container(child: Text("Good Read"));
+    NumberFormat n = NumberFormat("00");
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        Card(
+          elevation: 20,
+          child: ListTile(
+            dense: false,
+            trailing: IconButton(
+              tooltip: "delete session",
+              onPressed: () {
+                bloc.removeReadingSession(session);
+              },
+              icon: Icon(Icons.delete),
+            ),
+            title: Text(
+                "${n.format(session.duration.inHours)}:${n.format(session.duration.inSeconds % 60)}"),
+          ),
+        ),
+        SizedBox(
+          height: 20,
+        )
+      ],
+    );
   }
 }

@@ -111,6 +111,7 @@ class _BookItemState extends State<BookItem>
                       tag: "cover" + widget.book.id.toString(),
                       child: Container(
                         decoration: ShapeDecoration(
+                          color: Colors.red,
                           image: widget.book.imagePath != null
                               ? DecorationImage(
                                   fit: BoxFit.cover,
