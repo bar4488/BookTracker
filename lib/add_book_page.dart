@@ -2,6 +2,8 @@ import 'package:book_tracker/books_bloc.dart';
 import 'package:book_tracker/models/book.dart';
 import 'package:book_tracker/widgets/press_effect.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -23,33 +25,39 @@ class _AddBookPageState extends State<AddBookPage> {
   void getImage() async {
     var image;
     showDialog(
-      context: context,
-      child: AlertDialog(
-        title: Text("Pick from gallary or camera"),
-        actions: <Widget>[
-          FlatButton(
-            child: Text("Camera"),
-            onPressed: () async{
-              image = await ImagePicker.pickImage(source: ImageSource.camera);
-              setState(() {
-                Navigator.of(context).pop();
-                this.image = image;
-              });
+        context: context,
+        child: AlertDialog(
+          title: Text("Pick from gallary or camera"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Camera"),
+              onPressed: () async {
+                image = await ImagePicker.pickImage(source: ImageSource.camera);
+                if (image != null && image.path != null) {
+                  var decodedImage = await decodeImageFromList(image.readAsBytesSync());
+                  if(decodedImage.width > decodedImage.height)
+                    image = await FlutterImageCompress.compressAndGetFile(image.path, image.path, autoCorrectionAngle: true, rotate: 90);
+                }
+
+                setState(() {
+                  Navigator.of(context).pop();
+                  this.image = image;
+                });
               },
-          ),
-          FlatButton(
-            child: Text("Gallery"),
-            onPressed: () async{
-              image = await ImagePicker.pickImage(source: ImageSource.gallery);
-              setState(() {
-                Navigator.of(context).pop();
-                this.image = image;
-              });
-            },
-          )
-        ],
-      )
-    );
+            ),
+            FlatButton(
+              child: Text("Gallery"),
+              onPressed: () async {
+                image =
+                    await ImagePicker.pickImage(source: ImageSource.gallery);
+                setState(() {
+                  Navigator.of(context).pop();
+                  this.image = image;
+                });
+              },
+            )
+          ],
+        ));
   }
 
   @override
@@ -64,7 +72,7 @@ class _AddBookPageState extends State<AddBookPage> {
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
           child: Container(
-        margin: EdgeInsets.only(left: 12, right: 12, top: 22),
+            margin: EdgeInsets.only(left: 12, right: 12, top: 22),
             child: Form(
               key: _formKey,
               child: Column(
@@ -130,7 +138,7 @@ class _AddBookPageState extends State<AddBookPage> {
                       if (value.isEmpty) return "please enter number of pages";
                       if (int.tryParse(value) == null)
                         return "number of pages must be a number";
-                      pageCount = int.parse(value); 
+                      pageCount = int.parse(value);
                       return null;
                     },
                     decoration: InputDecoration(
@@ -149,7 +157,7 @@ class _AddBookPageState extends State<AddBookPage> {
       floatingActionButton: FloatingActionButton.extended(
         label: Text("Add Book"),
         onPressed: () {
-          if(_formKey.currentState.validate()){
+          if (_formKey.currentState.validate()) {
             _addBook(bloc);
             Navigator.of(context).pop();
           }
@@ -160,6 +168,10 @@ class _AddBookPageState extends State<AddBookPage> {
   }
 
   void _addBook(BooksBloc bloc) {
-    bloc.addBook(Book(name: name, pageCount: pageCount, writer: writer, imagePath: image != null ? image.path: null));
+    bloc.addBook(Book(
+        name: name,
+        pageCount: pageCount,
+        writer: writer,
+        imagePath: image != null ? image.path : null));
   }
 }

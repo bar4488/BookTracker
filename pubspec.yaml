@@ -24,6 +24,9 @@ dependencies:
   sqflite:
   path:
   intl:
+  flutter_exif_rotation: ^0.2.7
+  flutter_image_compress: ^0.6.3
+
 
 
 
