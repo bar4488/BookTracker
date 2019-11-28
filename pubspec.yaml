@@ -21,6 +21,7 @@ dependencies:
     sdk: flutter
   provider:
   image_picker: ^0.6.1+10
+  timeago: ^2.0.22
   sqflite:
   path:
   intl:

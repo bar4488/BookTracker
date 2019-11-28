@@ -62,10 +62,9 @@ class LocalDatabase{
   }
 
 
-  Future insertReadingSession(ReadingSession readingSession) async{
+  Future<int> insertReadingSession(ReadingSession readingSession) async{
     final Database db = await database;
-
-    await db.insert("readingSessions", readingSession.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return db.insert("readingSessions", readingSession.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<ReadingSession>> readingSessions() async{

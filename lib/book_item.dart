@@ -82,6 +82,9 @@ class _BookItemState extends State<BookItem>
     if (!widget.isDeleting &&
         !_animationController.isDismissed &&
         _animationController.value != 0.5) _animationController.animateTo(0.5);
+    ShapeBorder shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+    );
     return Stack(
       children: <Widget>[
         AnimatedBuilder(
@@ -100,9 +103,7 @@ class _BookItemState extends State<BookItem>
               onTap: !widget.isDeleting ? widget.onTap : null,
               child: ClipPath(
                 clipper: ShapeBorderClipper(
-                  shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(100),
-                  ),
+                  shape: shape,
                 ),
                 child: Stack(
                   fit: StackFit.expand,
@@ -118,9 +119,7 @@ class _BookItemState extends State<BookItem>
                                   image: FileImage(File(widget.book.imagePath)),
                                 )
                               : null,
-                          shape: ContinuousRectangleBorder(
-                            borderRadius: BorderRadius.circular(100),
-                          ),
+                          shape: shape,
                         ),
                       ),
                     ),
@@ -178,10 +177,10 @@ class _BookItemState extends State<BookItem>
                   ],
                 ),
               ),
-              color: widget.book.imagePath != null ? Colors.transparent : Colors.red,
-              shape: ContinuousRectangleBorder(
-                borderRadius: BorderRadius.circular(100),
-              ),
+              color: widget.book.imagePath != null
+                  ? Colors.transparent
+                  : Colors.red,
+              shape: shape,
             ),
           ),
         ),

@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.deepOrange,
         ),
         home: MyHomePage(title: 'Flutter Demo Home Page'),
       ),
@@ -99,19 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               book: books[index],
                               isDeleting: currentlyDeleting,
                               onTap: () {
-                                Navigator.of(context).push(
-                                  PageRouteBuilder(
-                                    transitionDuration: Duration(milliseconds: 300),
-                                    transitionsBuilder: (context, animation, sanimation, child){
-                                      return FadeTransition(
-                                        opacity: animation,
-                                        child: child,
-                                      );
-                                    },
-                                    pageBuilder: (_,__,___) =>
-                                        BookScreenScreen(book: books[index])
-                                  ),
-                                );
+                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => BookScreenScreen(book: books[index],)));
                               },
                               onLongPress: () {
                                 setState(() {

@@ -134,6 +134,7 @@ class _AddBookPageState extends State<AddBookPage> {
                     height: 12,
                   ),
                   TextFormField(
+                    keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value.isEmpty) return "please enter number of pages";
                       if (int.tryParse(value) == null)

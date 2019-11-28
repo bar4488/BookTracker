@@ -15,12 +15,16 @@ class BookBloc extends ChangeNotifier {
 
   Future<List<ReadingSession>> sessions;
 
-  void addReadingSession(ReadingSession session) async {
+  Future<int> addReadingSession(ReadingSession session) async {
     session.bookId = book.id;
     List<ReadingSession> sessions = await this.sessions;
+    int result = await _db.insertReadingSession(session);
+    book.currentPage = session.endPage;
+    await _db.updateBook(book);
+    session.id = result;
     sessions.add(session);
     notifyListeners();
-    _db.insertReadingSession(session);
+    return result;
   }
 
   void removeReadingSession(ReadingSession session) async {
@@ -28,6 +32,8 @@ class BookBloc extends ChangeNotifier {
     //remove session that has the same id
     sessions.removeWhere((b) => b.id == session.id);
     _db.deleteReadingSession(session.id);
+    book.currentPage -= session.endPage - session.startPage;
+    await _db.updateBook(book);
     notifyListeners();
   }
 

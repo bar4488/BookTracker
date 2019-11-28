@@ -1,6 +1,6 @@
 class Book{
 
-  Book({this.id, this.name, this.writer, this.imagePath, this.pageCount, this.currentPage});
+  Book({this.id, this.name, this.writer, this.imagePath, this.pageCount, this.currentPage = 0});
 
   int id;
   String name;
@@ -27,7 +27,7 @@ class Book{
       writer: map["writer"],
       pageCount: map["pageCount"],
       imagePath: map["imagePath"],
-      currentPage: map["currentPage"],
+      currentPage: map["currentPage"] ?? 0,
     );
   }
 }
