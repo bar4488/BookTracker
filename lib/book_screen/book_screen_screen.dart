@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:book_tracker/book_screen/new_reading_session.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:book_tracker/book_screen/book_bloc.dart';
 import 'package:book_tracker/book_screen/book_screen_app_bar.dart';
@@ -42,18 +43,24 @@ class BookScreenScreenState extends State<BookScreenScreen> {
     super.dispose();
   }
 
-  void startNewSession(BuildContext context) {}
-
-  void createMockSession() async {
-    await bloc.addReadingSession(
-      ReadingSession(
-        duration: Duration(hours: 2),
-        endPage: widget.book.currentPage + 50,
-        startPage: widget.book.currentPage,
-        startTime: DateTime(2019, 11, 11),
+  void startNewSession(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => NewReadingSessionScreen(bloc, widget.book),
       ),
     );
-    _listKey.currentState.insertItem(0);
+  }
+
+  double averagePagesPerHour(List<ReadingSession> sessions) {
+    List<double> avgs = sessions
+        .where((s) => s.duration.inMicroseconds != 0)
+        .map((session) =>
+            (session.endPage - session.startPage) /
+            (session.duration.inSeconds / 3600))
+        .toList();
+    double sum = 0;
+    avgs.forEach((i) => sum += i);
+    return sum / avgs.length;
   }
 
   @override
@@ -62,7 +69,9 @@ class BookScreenScreenState extends State<BookScreenScreen> {
       borderRadius: BorderRadius.circular(20),
     );
     return Scaffold(
-      appBar: AppBar(title: Text(widget.book.name),),
+      appBar: AppBar(
+        title: Text(widget.book.name),
+      ),
       body: Column(
         children: <Widget>[
           Container(
@@ -96,82 +105,57 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                   Expanded(
                     flex: 3,
                     child: Container(
-                        margin: EdgeInsets.only(top: 24),
-                        child: Column(
-                          children: <Widget>[
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Wrap(
-                                children: <Widget>[
-                                  Baseline(
-                                    baseline: 9,
-                                    baselineType: TextBaseline.alphabetic,
-                                    child: Text(
-                                      "${widget.book.currentPage}",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          color: Colors.grey[800],
-                                          fontStyle: FontStyle.italic),
-                                    ),
-                                  ),
-                                  Baseline(
-                                    baseline: 9,
-                                    baselineType: TextBaseline.alphabetic,
-                                    child: Text(
-                                      " out of",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey[800],
-                                      ),
-                                    ),
-                                  ),
-                                  Baseline(
-                                    baseline: 9,
-                                    baselineType: TextBaseline.alphabetic,
-                                    child: Text(
-                                      " ${widget.book.pageCount} ",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          color: Colors.grey[800],
-                                          fontStyle: FontStyle.italic),
-                                    ),
-                                  ),
-                                  Baseline(
-                                    baseline: 9,
-                                    baselineType: TextBaseline.alphabetic,
-                                    child: Text(
-                                      " pages read",
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey[800],
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                      margin: EdgeInsets.only(top: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "${widget.book.name}",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[800],
                             ),
-                            SizedBox(height: 20,),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Wrap(
-                                children: <Widget>[
-                                  Baseline(
-                                    baseline: 9,
-                                    baselineType: TextBaseline.alphabetic,
-                                    child: Text(
-                                      "${widget.book.currentPage}",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          color: Colors.grey[800],
-                                          fontStyle: FontStyle.italic),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        )),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                            "writer: ${widget.book.writer}",
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                            "pages read: ${widget.book.currentPage}/${widget.book.pageCount}",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          FutureBuilder<List<ReadingSession>>(
+                            future: bloc.sessions,
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) return SizedBox();
+                              final sessions = snapshot.data;
+                              NumberFormat n = NumberFormat("#.#");
+                              return Text(
+                                "pages an hour: ${n.format(averagePagesPerHour(sessions))}",
+                                style: TextStyle(
+                                  color: Colors.grey[800],
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              );
+                            },
+                          )
+                        ],
+                      ),
+                    ),
                   )
                 ],
               )),
@@ -193,40 +177,27 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                               border: Border(
                                   top: BorderSide(color: Colors.black26))),
                         ),
-                        AnimatedList(
-                          shrinkWrap: true,
-                          physics: BouncingScrollPhysics(),
-                          itemBuilder: (context, index, animation) {
-                            return SizeTransition(
-                              sizeFactor: animation,
-                              child: ReadingSessionItem(
-                                bloc,
-                                sessions.reversed.toList()[index],
-                                onDelete: () {
-                                  ReadingSession session =
-                                      sessions.reversed.toList()[index];
-                                  _listKey.currentState.removeItem(index,
-                                      (context, animation) {
-                                    return SizeTransition(
-                                      sizeFactor: animation,
-                                      child: ReadingSessionItem(
-                                        bloc,
-                                        session,
-                                      ),
-                                    );
-                                  });
-                                  bloc.removeReadingSession(session);
-                                },
-                              ),
-                            );
-                          },
-                          key: _listKey,
-                          initialItemCount: sessions.length,
-                        ),
+                        if (sessions.isNotEmpty)
+                          Expanded(
+                            child: ListView.builder(
+                              physics: BouncingScrollPhysics(),
+                              itemCount: sessions.length,
+                              itemBuilder: (context, index) {
+                                index = sessions.length - 1 - index;
+                                return ReadingSessionItem(
+                                  bloc,
+                                  sessions[index],
+                                  onDelete: () {
+                                    ReadingSession session = sessions[index];
+                                    bloc.removeReadingSession(session);
+                                  },
+                                );
+                              },
+                            ),
+                          ),
                         if (sessions.isEmpty)
                           Container(
-                            padding:
-                            EdgeInsets.only(left: 16, right: 16),
+                            padding: EdgeInsets.only(left: 16, right: 16),
                             child: Text(
                               "you dont have any reading sessions...\n\npress the floating button to start a new one!",
                               textAlign: TextAlign.center,
@@ -250,7 +221,7 @@ class BookScreenScreenState extends State<BookScreenScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.play_arrow),
-        onPressed: createMockSession,
+        onPressed: () => startNewSession(context),
       ),
     );
   }
@@ -310,10 +281,15 @@ class ReadingSessionItem extends StatelessWidget {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text("${timeago.format(session.startTime)}"),
-                Text(
-                  "${session.duration.inHours} hours, ${session.duration.inSeconds % 60} minutes",
-                ),
+                if (session.startTime != null)
+                  Text("${timeago.format(session.startTime)}"),
+                if (session.duration != null &&
+                    session.duration.inMicroseconds != 0)
+                  Text(
+                    session.duration.inSeconds > 60
+                        ? "${session.duration.inHours} hours, ${session.duration.inMinutes % 60} minutes"
+                        : "${session.duration.inSeconds} seconds",
+                  ),
               ],
             ),
           ),

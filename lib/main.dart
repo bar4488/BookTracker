@@ -99,7 +99,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               book: books[index],
                               isDeleting: currentlyDeleting,
                               onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(builder: (_) => BookScreenScreen(book: books[index],)));
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (_) => BookScreenScreen(
+                                          book: books[index],
+                                        )));
                               },
                               onLongPress: () {
                                 setState(() {

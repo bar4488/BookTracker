@@ -15,7 +15,9 @@ class ReadingSession{
       'bookId': bookId,
       'startPage': startPage,
       'endPage': endPage,
+      if(startTime != null)
       'startTime': startTime.millisecondsSinceEpoch,
+      if(duration != null)
       'duration': duration.inSeconds,
     };
   }
@@ -27,7 +29,7 @@ class ReadingSession{
       startPage: map["startPage"],
       endPage: map["endPage"],
       startTime: DateTime.fromMillisecondsSinceEpoch(map["startTime"]),
-      duration: Duration(seconds: map["duration"]),
+      duration:  Duration(seconds: map["duration"]),
     );
   }
 }

@@ -55,10 +55,17 @@ class LocalDatabase{
     await db.update("books", book.toMap(), where: "id = ?", whereArgs: [book.id]);
   }
 
-  Future deleteBook(int id) async{
+  Future _deleteBook(int id) async{
     final Database db = await database;
 
     await db.delete("books", where: "id = ?", whereArgs: [id]);
+  }
+
+  Future deleteBook(int id) async{
+    final sessions = await readingSessionsOf(id);
+    sessions.forEach((session) => deleteReadingSession(session.id));
+    await _deleteBook(id);
+
   }
 
 
@@ -90,7 +97,7 @@ class LocalDatabase{
 
   Future<List<ReadingSession>> readingSessionsOf(int bookId) async{
     final Database db = await database;
-    final List<Map<String, dynamic>> maps = await db.query("readingSessions", where: "bookId = ?", whereArgs: [bookId], orderBy: "startTime desc");
+    final List<Map<String, dynamic>> maps = await db.query("readingSessions", where: "bookId = ?", whereArgs: [bookId], orderBy: "startTime");
 
     return List.generate(maps.length, (i){
       return ReadingSession.fromMap(maps[i]);
