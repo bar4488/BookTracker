@@ -2,7 +2,7 @@ class Book{
 
   Book({this.id, this.name, this.writer, this.imagePath, this.pageCount, this.currentPage = 0});
 
-  int id;
+  String id;
   String name;
   String writer;
   String imagePath;

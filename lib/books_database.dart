@@ -52,7 +52,7 @@ class LocalDatabase{
   Future updateBook(Book book) async{
     final Database db = await database;
 
-    await db.update("books", book.toMap(), where: "id = ?", whereArgs: [book.id]);
+    await db.update("books", book.toMap(), where: "id = ?", whereArgs: [book.id.hashCode]);
   }
 
   Future _deleteBook(int id) async{
@@ -63,7 +63,7 @@ class LocalDatabase{
 
   Future deleteBook(int id) async{
     final sessions = await readingSessionsOf(id);
-    sessions.forEach((session) => deleteReadingSession(session.id));
+    sessions.forEach((session) => deleteReadingSession(session.id.hashCode));
     await _deleteBook(id);
 
   }

@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:book_tracker/models/reading_session.dart';
 import 'package:flutter/material.dart';
 import '../models/book.dart';
-import '../books_database.dart';
+import '../books_firebase.dart';
 
 class BookBloc extends ChangeNotifier {
-  static LocalDatabase _db = LocalDatabase();
+  static FirebaseDatabase _db = FirebaseDatabase();
 
   BookBloc(this.book){
     sessions = _db.readingSessionsOf(book.id);
@@ -15,10 +15,10 @@ class BookBloc extends ChangeNotifier {
 
   Future<List<ReadingSession>> sessions;
 
-  Future<int> addReadingSession(ReadingSession session) async {
+  Future<String> addReadingSession(ReadingSession session) async {
     session.bookId = book.id;
     List<ReadingSession> sessions = await this.sessions;
-    int result = await _db.insertReadingSession(session);
+    String result = await _db.insertReadingSession(session);
     book.currentPage = session.endPage;
     await _db.updateBook(book);
     session.id = result;
@@ -31,7 +31,7 @@ class BookBloc extends ChangeNotifier {
     List<ReadingSession> sessions = await this.sessions;
     //remove session that has the same id
     sessions.removeWhere((b) => b.id == session.id);
-    _db.deleteReadingSession(session.id);
+    await _db.deleteReadingSession(session.id);
     book.currentPage -= session.endPage - session.startPage;
     await _db.updateBook(book);
     notifyListeners();
@@ -40,7 +40,7 @@ class BookBloc extends ChangeNotifier {
   void updateReadingSession(ReadingSession session) async {
     List<ReadingSession> sessions = await this.sessions;
 
-    int index = sessions.indexWhere((b) => b.id == session.id);
+    int index = sessions.indexWhere((b) => b.id == session.bookId);
     if (index != -1) {
       sessions[index] = session;
       _db.updateReadingSession(session);

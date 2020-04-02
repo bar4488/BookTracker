@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'models/book.dart';
-import 'books_database.dart';
+import 'books_firebase.dart';
 
 class BooksBloc extends ChangeNotifier {
-  static LocalDatabase _db = LocalDatabase();
+  static FirebaseDatabase _db = FirebaseDatabase();
 
   BooksBloc();
 
@@ -13,7 +13,7 @@ class BooksBloc extends ChangeNotifier {
 
   void addBook(Book book) async {
     List<Book> books = await this.books;
-    int id = await _db.insertBook(book);
+    String id = await _db.insertBook(book);
     book.id = id;
     books.add(book);
     notifyListeners();

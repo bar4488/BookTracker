@@ -2,8 +2,8 @@ class ReadingSession{
 
   ReadingSession({this.id, this.bookId, this.startPage, this.endPage, this.startTime, this.duration});
 
-  int id;
-  int bookId;
+  String id;
+  String bookId;
   int startPage;
   int endPage;
   DateTime startTime;

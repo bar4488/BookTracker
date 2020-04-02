@@ -1,5 +1,6 @@
 import 'package:book_tracker/book_screen/book_screen_screen.dart';
-
+import 'Auth.dart';
+import 'login_page.dart';
 import 'book_item.dart';
 import 'package:book_tracker/add_book_page.dart';
 import 'package:book_tracker/books_bloc.dart';
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          builder: (_) => BooksBloc(),
+          create: (_) => BooksBloc(),
         )
       ],
       child: MaterialApp(
@@ -23,15 +24,14 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.deepOrange,
         ),
-        home: MyHomePage(title: 'Flutter Demo Home Page'),
+        home: MyHomePage(),
       ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
+  MyHomePage({Key key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -39,6 +39,24 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool currentlyDeleting = false;
+  Auth auth;
+  @override
+  void initState() {
+    super.initState();
+    checkLogin();
+  }
+
+  Future checkLogin() async {
+    auth = Auth();
+    if (!await auth.isLoggedIn()) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => LoginPage(auth),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,6 +176,48 @@ class _MyHomePageState extends State<MyHomePage> {
           },
           tooltip: 'Add Book',
           child: Icon(Icons.add),
+        ),
+        drawer: Drawer(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              ListView(
+                shrinkWrap: true,
+                // Important: Remove any padding from the ListView.
+                padding: EdgeInsets.zero,
+                children: <Widget>[
+                  DrawerHeader(
+                    child: Text('Drawer Header'),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Item 1'),
+                    onTap: () {
+                      // Update the state of the app.
+                      // ...
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Item 2'),
+                    onTap: () {
+                      // Update the state of the app.
+                      // ...
+                    },
+                  ),
+                ],
+              ),
+              ListTile(
+                leading: Icon(Icons.exit_to_app),
+                title: Text('Logout'),
+                onTap: () {
+                  auth.signOut();
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => LoginPage(auth)));
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

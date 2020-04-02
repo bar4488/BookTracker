@@ -2,12 +2,12 @@ import 'dart:io';
 import 'package:book_tracker/book_screen/new_reading_session.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:book_tracker/book_screen/book_bloc.dart';
-import 'package:book_tracker/book_screen/book_screen_app_bar.dart';
 import 'package:book_tracker/models/book.dart';
 import 'package:book_tracker/models/reading_session.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../edit_book_page.dart';
 
 import '../models/reading_session.dart';
 import '../widgets/press_effect.dart';
@@ -30,7 +30,6 @@ class BookScreenScreen extends StatefulWidget {
 class BookScreenScreenState extends State<BookScreenScreen> {
   BookScreenScreenState(this.bloc);
   BookBloc bloc;
-  GlobalKey<AnimatedListState> _listKey = GlobalKey();
 
   @override
   void initState() {
@@ -71,11 +70,25 @@ class BookScreenScreenState extends State<BookScreenScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.book.name),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return EditBookPage(bloc);
+                  },
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: <Widget>[
           Container(
-              margin: EdgeInsets.all(8),
+              margin: EdgeInsets.only(top: 8, left: 8, right: 8),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,8 +187,10 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                           margin: EdgeInsets.symmetric(horizontal: 16),
                           height: 20,
                           decoration: BoxDecoration(
-                              border: Border(
-                                  top: BorderSide(color: Colors.black26))),
+                            border: Border(
+                              top: BorderSide(color: Colors.black26),
+                            ),
+                          ),
                         ),
                         if (sessions.isNotEmpty)
                           Expanded(

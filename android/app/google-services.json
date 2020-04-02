@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "113290229651",
+    "firebase_url": "https://book-tracker-810fd.firebaseio.com",
+    "project_id": "book-tracker-810fd",
+    "storage_bucket": "book-tracker-810fd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113290229651:android:39f150d5c3bb9bab909a66",
+        "android_client_info": {
+          "package_name": "com.bar.book_tracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "113290229651-65t2rn9hfcsfhq8j7pmp4rrurqgtdh23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCN6zNKk1jskh6AYB-_6OeoWQBr-oLRY6M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "113290229651-65t2rn9hfcsfhq8j7pmp4rrurqgtdh23.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

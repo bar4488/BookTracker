@@ -64,7 +64,7 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<TimerService>(
-      builder: (_) => TimerService(),
+      create: (_) => TimerService(),
       child: Scaffold(
         backgroundColor: Theme.of(context).primaryColorLight,
         appBar: AppBar(

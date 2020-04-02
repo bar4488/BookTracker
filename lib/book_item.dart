@@ -109,7 +109,7 @@ class _BookItemState extends State<BookItem>
                   fit: StackFit.expand,
                   children: <Widget>[
                     Hero(
-                      tag: "cover" + widget.book.id.toString(),
+                      tag: "cover" + widget.book.id,
                       child: Container(
                         decoration: ShapeDecoration(
                           color: Colors.red,
