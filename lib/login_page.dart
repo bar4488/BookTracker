@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
       onWillPop: () => Future<bool>.value(false),
       child: Scaffold(
         body: Center(
-          child: RaisedButton(
+          child: ElevatedButton(
             child: Text("Login with google"),
             onPressed: () async {
               bool res = await widget.auth.authenticateWithGoogle();

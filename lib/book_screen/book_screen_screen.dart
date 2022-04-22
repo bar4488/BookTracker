@@ -6,11 +6,9 @@ import 'package:book_tracker/models/book.dart';
 import 'package:book_tracker/models/reading_session.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import '../edit_book_page.dart';
 
 import '../models/reading_session.dart';
-import '../widgets/press_effect.dart';
 import 'book_bloc.dart';
 
 class BookScreenScreen extends StatefulWidget {
@@ -252,31 +250,35 @@ class ReadingSessionItem extends StatelessWidget {
   void deleteReadingSession(BuildContext context) {
     showDialog(
       context: context,
-      child: AlertDialog(
-        title: Text("Are you sure you want to delete?"),
-        actions: <Widget>[
-          FlatButton(
-            child: Text("No"),
-            onPressed: () async {
-              Navigator.of(context).pop();
-            },
-          ),
-          RaisedButton(
-            color: Theme.of(context).primaryColor,
-            child: Text("Yes"),
-            onPressed: () {
-              onDelete();
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      ),
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Are you sure you want to delete?"),
+          actions: <Widget>[
+            TextButton(
+              child: Text("No"),
+              onPressed: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Theme.of(context).primaryColor,
+              ),
+              child: Text("Yes"),
+              onPressed: () {
+                onDelete();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    NumberFormat n = NumberFormat("00");
+    // NumberFormat n = NumberFormat("00");
     return Container(
       decoration: BoxDecoration(
         border: Border(),

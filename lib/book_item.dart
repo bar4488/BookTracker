@@ -51,18 +51,21 @@ class _BookItemState extends State<BookItem>
 
   void deleteBook(BooksBloc bloc) {
     showDialog(
-        context: context,
-        child: AlertDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
           title: Text("Are you sure you want to delete?"),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text("No"),
               onPressed: () async {
                 Navigator.of(context).pop();
               },
             ),
-            RaisedButton(
-              color: Theme.of(context).primaryColor,
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Theme.of(context).primaryColor,
+              ),
               child: Text("Yes"),
               onPressed: () async {
                 bloc.removeBook(widget.book);
@@ -71,7 +74,9 @@ class _BookItemState extends State<BookItem>
               },
             )
           ],
-        ));
+        );
+      },
+    );
   }
 
   @override

@@ -1,9 +1,7 @@
 import 'package:book_tracker/book_screen/book_bloc.dart';
 import 'package:book_tracker/books_bloc.dart';
-import 'package:book_tracker/models/book.dart';
 import 'package:book_tracker/widgets/press_effect.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -17,10 +15,9 @@ class EditBookPage extends StatefulWidget {
   EditBookPage(this.bloc);
   @override
   _EditBookPageState createState() => _EditBookPageState(bloc);
-
 }
 
-class _EditBookPageState extends State<EditBookPage> {
+class _EditBookPageState extends State<EditBookPage> with ChangeNotifier {
   File image;
   final _formKey = GlobalKey<FormState>();
   BookBloc bloc;
@@ -32,11 +29,12 @@ class _EditBookPageState extends State<EditBookPage> {
   void getImage() async {
     var image;
     showDialog(
-        context: context,
-        child: AlertDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
           title: Text("Pick from gallary or camera"),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text("Camera"),
               onPressed: () async {
                 image = await ImagePicker.pickImage(source: ImageSource.camera);
@@ -55,7 +53,7 @@ class _EditBookPageState extends State<EditBookPage> {
                 });
               },
             ),
-            FlatButton(
+            TextButton(
               child: Text("Gallery"),
               onPressed: () async {
                 image =
@@ -67,7 +65,9 @@ class _EditBookPageState extends State<EditBookPage> {
               },
             )
           ],
-        ));
+        );
+      },
+    );
   }
 
   @override
@@ -183,9 +183,7 @@ class _EditBookPageState extends State<EditBookPage> {
 
   void _updateBook(BooksBloc booksBloc) {
     bloc.book.imagePath = image != null ? image.path : null;
-    booksBloc.updateBook(
-      bloc.book
-    );
+    booksBloc.updateBook(bloc.book);
     bloc.notifyListeners();
   }
 }

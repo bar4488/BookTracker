@@ -22,10 +22,8 @@ dependencies:
   provider:
   image_picker: ^0.6.1+10
   timeago: ^2.0.22
-  sqflite:
   path:
   intl:
-  flutter_exif_rotation: ^0.2.7
   flutter_image_compress: ^0.6.3
   firebase_core: ^0.4.3+3
   firebase_auth: ^0.15.4

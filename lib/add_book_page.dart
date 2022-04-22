@@ -2,7 +2,6 @@ import 'package:book_tracker/books_bloc.dart';
 import 'package:book_tracker/models/book.dart';
 import 'package:book_tracker/widgets/press_effect.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -25,18 +24,22 @@ class _AddBookPageState extends State<AddBookPage> {
   void getImage() async {
     var image;
     showDialog(
-        context: context,
-        child: AlertDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
           title: Text("Pick from gallary or camera"),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text("Camera"),
               onPressed: () async {
                 image = await ImagePicker.pickImage(source: ImageSource.camera);
                 if (image != null && image.path != null) {
-                  var decodedImage = await decodeImageFromList(image.readAsBytesSync());
-                  if(decodedImage.width > decodedImage.height)
-                    image = await FlutterImageCompress.compressAndGetFile(image.path, image.path, autoCorrectionAngle: true, rotate: 90);
+                  var decodedImage =
+                      await decodeImageFromList(image.readAsBytesSync());
+                  if (decodedImage.width > decodedImage.height)
+                    image = await FlutterImageCompress.compressAndGetFile(
+                        image.path, image.path,
+                        autoCorrectionAngle: true, rotate: 90);
                 }
 
                 setState(() {
@@ -45,7 +48,7 @@ class _AddBookPageState extends State<AddBookPage> {
                 });
               },
             ),
-            FlatButton(
+            TextButton(
               child: Text("Gallery"),
               onPressed: () async {
                 image =
@@ -57,7 +60,9 @@ class _AddBookPageState extends State<AddBookPage> {
               },
             )
           ],
-        ));
+        );
+      },
+    );
   }
 
   @override

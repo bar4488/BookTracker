@@ -4,7 +4,6 @@ import 'package:book_tracker/models/book.dart';
 import 'package:book_tracker/models/reading_session.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'dart:async';
 
 import 'package:provider/provider.dart';
 
@@ -126,7 +125,9 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
                               labelText: "what page are you on now?",
                               errorText: empty
                                   ? "please type the current page"
-                                  : !number ? "please enter a number" : null,
+                                  : !number
+                                      ? "please enter a number"
+                                      : null,
                               border: OutlineInputBorder(),
                             ),
                           ),
@@ -157,7 +158,9 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
                 child: FloatingActionButton.extended(
                   key: service.isRunning
                       ? second
-                      : service.finished || _timedSession ? third : first,
+                      : service.finished || _timedSession
+                          ? third
+                          : first,
                   backgroundColor: Theme.of(context).canvasColor,
                   onPressed: service.isRunning
                       ? service.stop
