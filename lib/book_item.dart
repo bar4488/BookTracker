@@ -31,9 +31,9 @@ class _BookItemState extends State<BookItem>
 
   @override
   void initState() {
-    _animationController = new AnimationController(
+    _animationController = AnimationController(
       vsync: this,
-      duration: new Duration(milliseconds: 150),
+      duration: Duration(milliseconds: 150),
     );
 
     _animationController.value = 0.5;
@@ -82,8 +82,9 @@ class _BookItemState extends State<BookItem>
   @override
   Widget build(BuildContext context) {
     BooksBloc bloc = Provider.of<BooksBloc>(context);
-    if (widget.isDeleting && !_animationController.isAnimating)
+    if (widget.isDeleting && !_animationController.isAnimating) {
       _animationController.forward();
+    }
     if (!widget.isDeleting &&
         !_animationController.isDismissed &&
         _animationController.value != 0.5) _animationController.animateTo(0.5);

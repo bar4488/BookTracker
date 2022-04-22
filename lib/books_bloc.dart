@@ -5,7 +5,7 @@ import 'models/book.dart';
 import 'books_firebase.dart';
 
 class BooksBloc extends ChangeNotifier {
-  static FirebaseDatabase _db = FirebaseDatabase();
+  static final FirebaseDatabase _db = FirebaseDatabase();
 
   BooksBloc();
 

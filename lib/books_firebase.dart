@@ -1,96 +1,98 @@
 import 'dart:async';
-import 'package:book_tracker/Auth.dart';
+import 'package:book_tracker/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'models/book.dart';
 import 'models/reading_session.dart';
 
 class FirebaseDatabase {
-  Firestore firestore;
+  FirebaseFirestore firestore;
 
   FirebaseDatabase() {
-    firestore = Firestore();
+    firestore = FirebaseFirestore.instance;
   }
 
   Future<CollectionReference> get booksCollection async => firestore
       .collection("user")
-      .document(await Auth().getLoggedInEmail())
+      .doc(await Auth().getLoggedInEmail())
       .collection("books");
   Future<CollectionReference> get readingSessionsCollection async => firestore
       .collection("user")
-      .document(await Auth().getLoggedInEmail())
+      .doc(await Auth().getLoggedInEmail())
       .collection("readingSessions");
 
   Future<String> insertBook(Book book) async {
-    String id =  (await (await booksCollection).add(book.toMap())).documentID;
+    String id = (await (await booksCollection).add(book.toMap())).id;
     book.id = id;
-    (await booksCollection).document(id).setData(book.toMap());
+    (await booksCollection).doc(id).set(book.toMap());
     return id;
   }
 
   Future<List<Book>> books() async {
-    QuerySnapshot s = await (await booksCollection).getDocuments();
-    return s.documents.map((e) => Book.fromMap(e.data)).toList();
+    QuerySnapshot s = await (await booksCollection).get();
+    return s.docs.map((e) => Book.fromMap(e.data())).toList();
   }
 
   Future updateBook(Book book) async {
-    var doc = (await booksCollection).document(book.id);
-    doc.setData(book.toMap());
+    var doc = (await booksCollection).doc(book.id);
+    doc.set(book.toMap());
   }
 
   Future deleteBook(String id) async {
-    DocumentReference doc = (await booksCollection).document(id);
-    QuerySnapshot s = await doc.collection("readingSession").getDocuments();
-    s.documents.forEach((element) {
-      deleteReadingSession(element.documentID);
-    });
+    DocumentReference doc = (await booksCollection).doc(id);
+    QuerySnapshot s = await doc.collection("readingSession").get();
+    for (var element in s.docs) {
+      deleteReadingSession(element.id);
+    }
     doc.delete();
   }
 
   Future<String> insertReadingSession(ReadingSession readingSession) async {
-    var doc = (await booksCollection).document(readingSession.bookId);
+    var doc = (await booksCollection).doc(readingSession.bookId);
     String id =
         (await (await readingSessionsCollection).add(readingSession.toMap()))
-            .documentID;
+            .id;
     readingSession.id = id;
-    (await readingSessionsCollection).document(id).setData(readingSession.toMap());
-    await doc
-        .collection("readingSession")
-        .document(id)
-        .setData(readingSession.toMap());
+    (await readingSessionsCollection).doc(id).set(readingSession.toMap());
+    await doc.collection("readingSession").doc(id).set(readingSession.toMap());
     return id;
   }
 
   Future<List<ReadingSession>> readingSessions() async {
-    QuerySnapshot s = await (await readingSessionsCollection).getDocuments();
-    return s.documents.map((e) => ReadingSession.fromMap(e.data)).toList()..sort((a, b) => (a.startTime.millisecondsSinceEpoch).compareTo(b.startTime.millisecondsSinceEpoch));
+    QuerySnapshot s = await (await readingSessionsCollection).get();
+    return s.docs.map((e) => ReadingSession.fromMap(e.data())).toList()
+      ..sort((a, b) => (a.startTime.millisecondsSinceEpoch)
+          .compareTo(b.startTime.millisecondsSinceEpoch));
   }
 
   Future updateReadingSession(ReadingSession readingSession) async {
     var readingSessionDoc =
-        (await readingSessionsCollection).document(readingSession.id);
-    readingSessionDoc.setData(readingSession.toMap());
-    var bookDoc = (await booksCollection).document(readingSession.bookId);
+        (await readingSessionsCollection).doc(readingSession.id);
+    readingSessionDoc.set(readingSession.toMap());
+    var bookDoc = (await booksCollection).doc(readingSession.bookId);
     await bookDoc
         .collection("readingSession")
-        .document(readingSession.id)
-        .setData(readingSession.toMap());
+        .doc(readingSession.id)
+        .set(readingSession.toMap());
   }
 
   Future deleteReadingSession(String id) async {
-    var readingSessionDoc = (await readingSessionsCollection).document(id);
-    String bookId = (await readingSessionDoc.get()).data["bookId"];
+    var readingSessionDoc = (await readingSessionsCollection).doc(id);
+    String bookId = ((await readingSessionDoc.get()).data()
+        as Map<String, dynamic>)["bookId"];
     readingSessionDoc.delete();
-    var bookDoc = (await booksCollection).document(bookId);
-    await bookDoc.collection("readingSession").document(id).delete();
+    var bookDoc = (await booksCollection).doc(bookId);
+    await bookDoc.collection("readingSession").doc(id).delete();
   }
 
   Future<List<ReadingSession>> readingSessionsOf(String bookId) async {
     QuerySnapshot s = await (await booksCollection)
-        .document(bookId)
+        .doc(bookId)
         .collection("readingSession")
-        .getDocuments();
-    return s.documents.map((e) => ReadingSession.fromMap(e.data)).toList()..sort((a, b) => (a.startTime.millisecondsSinceEpoch).compareTo(b.startTime.millisecondsSinceEpoch));
+        .get();
+    return s.docs.map((e) => ReadingSession.fromMap(e.data())).toList()
+      ..sort((a, b) => (a.startTime.millisecondsSinceEpoch)
+          .compareTo(b.startTime.millisecondsSinceEpoch));
   }
 /*
 

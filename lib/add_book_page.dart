@@ -10,6 +10,9 @@ import 'package:provider/provider.dart';
 
 class AddBookPage extends StatefulWidget {
   final String title = "Add Book";
+
+  const AddBookPage({Key key}) : super(key: key);
+
   @override
   _AddBookPageState createState() => _AddBookPageState();
 }
@@ -22,7 +25,9 @@ class _AddBookPageState extends State<AddBookPage> {
   int pageCount;
 
   void getImage() async {
-    var image;
+    File image;
+    final ImagePicker _picker = ImagePicker();
+
     showDialog(
       context: context,
       builder: (context) {
@@ -32,14 +37,16 @@ class _AddBookPageState extends State<AddBookPage> {
             TextButton(
               child: Text("Camera"),
               onPressed: () async {
-                image = await ImagePicker.pickImage(source: ImageSource.camera);
-                if (image != null && image.path != null) {
+                XFile tmp = await _picker.pickImage(source: ImageSource.camera);
+                if (tmp != null && tmp.path != null) {
+                  image = File((tmp).path);
                   var decodedImage =
-                      await decodeImageFromList(image.readAsBytesSync());
-                  if (decodedImage.width > decodedImage.height)
+                      await decodeImageFromList(await image.readAsBytes());
+                  if (decodedImage.width > decodedImage.height) {
                     image = await FlutterImageCompress.compressAndGetFile(
                         image.path, image.path,
                         autoCorrectionAngle: true, rotate: 90);
+                  }
                 }
 
                 setState(() {
@@ -51,8 +58,18 @@ class _AddBookPageState extends State<AddBookPage> {
             TextButton(
               child: Text("Gallery"),
               onPressed: () async {
-                image =
-                    await ImagePicker.pickImage(source: ImageSource.gallery);
+                XFile tmp =
+                    await _picker.pickImage(source: ImageSource.gallery);
+                if (tmp != null && tmp.path != null) {
+                  image = File((tmp).path);
+                  var decodedImage =
+                      await decodeImageFromList(await image.readAsBytes());
+                  if (decodedImage.width > decodedImage.height) {
+                    image = await FlutterImageCompress.compressAndGetFile(
+                        image.path, image.path,
+                        autoCorrectionAngle: true, rotate: 90);
+                  }
+                }
                 setState(() {
                   Navigator.of(context).pop();
                   this.image = image;
@@ -72,7 +89,7 @@ class _AddBookPageState extends State<AddBookPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Container(
+      body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
@@ -107,7 +124,7 @@ class _AddBookPageState extends State<AddBookPage> {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Colors.amber, Colors.red],
+                          colors: const [Colors.amber, Colors.red],
                         ),
                       ),
                     ),
@@ -142,8 +159,9 @@ class _AddBookPageState extends State<AddBookPage> {
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value.isEmpty) return "please enter number of pages";
-                      if (int.tryParse(value) == null)
+                      if (int.tryParse(value) == null) {
                         return "number of pages must be a number";
+                      }
                       pageCount = int.parse(value);
                       return null;
                     },
@@ -178,6 +196,6 @@ class _AddBookPageState extends State<AddBookPage> {
         name: name,
         pageCount: pageCount,
         writer: writer,
-        imagePath: image != null ? image.path : null));
+        imagePath: image?.path));
   }
 }

@@ -12,9 +12,10 @@ class EditBookPage extends StatefulWidget {
   final String title = "Add Book";
   final BookBloc bloc;
 
-  EditBookPage(this.bloc);
+  const EditBookPage(this.bloc, {Key key}) : super(key: key);
+
   @override
-  _EditBookPageState createState() => _EditBookPageState(bloc);
+  _EditBookPageState createState() => _EditBookPageState();
 }
 
 class _EditBookPageState extends State<EditBookPage> with ChangeNotifier {
@@ -22,12 +23,16 @@ class _EditBookPageState extends State<EditBookPage> with ChangeNotifier {
   final _formKey = GlobalKey<FormState>();
   BookBloc bloc;
 
-  _EditBookPageState(BookBloc bloc) {
+  @override
+  void setState(VoidCallback fn) {
     if (bloc.book.imagePath != null) image = File(bloc.book.imagePath);
-    this.bloc = bloc;
+    bloc = widget.bloc;
+    super.setState(fn);
   }
+
   void getImage() async {
-    var image;
+    File image;
+    final ImagePicker _picker = ImagePicker();
     showDialog(
       context: context,
       builder: (context) {
@@ -37,14 +42,16 @@ class _EditBookPageState extends State<EditBookPage> with ChangeNotifier {
             TextButton(
               child: Text("Camera"),
               onPressed: () async {
-                image = await ImagePicker.pickImage(source: ImageSource.camera);
+                image = File(
+                    (await _picker.pickImage(source: ImageSource.camera)).path);
                 if (image != null && image.path != null) {
                   var decodedImage =
                       await decodeImageFromList(image.readAsBytesSync());
-                  if (decodedImage.width > decodedImage.height)
+                  if (decodedImage.width > decodedImage.height) {
                     image = await FlutterImageCompress.compressAndGetFile(
                         image.path, image.path,
                         autoCorrectionAngle: true, rotate: 90);
+                  }
                 }
 
                 setState(() {
@@ -56,8 +63,9 @@ class _EditBookPageState extends State<EditBookPage> with ChangeNotifier {
             TextButton(
               child: Text("Gallery"),
               onPressed: () async {
-                image =
-                    await ImagePicker.pickImage(source: ImageSource.gallery);
+                image = File(
+                    (await _picker.pickImage(source: ImageSource.gallery))
+                        .path);
                 setState(() {
                   Navigator.of(context).pop();
                   this.image = image;
@@ -77,7 +85,7 @@ class _EditBookPageState extends State<EditBookPage> with ChangeNotifier {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Container(
+      body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
@@ -112,7 +120,7 @@ class _EditBookPageState extends State<EditBookPage> with ChangeNotifier {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Colors.amber, Colors.red],
+                          colors: const [Colors.amber, Colors.red],
                         ),
                       ),
                     ),
@@ -149,8 +157,9 @@ class _EditBookPageState extends State<EditBookPage> with ChangeNotifier {
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value.isEmpty) return "please enter number of pages";
-                      if (int.tryParse(value) == null)
+                      if (int.tryParse(value) == null) {
                         return "number of pages must be a number";
+                      }
                       bloc.book.pageCount = int.parse(value);
                       return null;
                     },
@@ -182,7 +191,7 @@ class _EditBookPageState extends State<EditBookPage> with ChangeNotifier {
   }
 
   void _updateBook(BooksBloc booksBloc) {
-    bloc.book.imagePath = image != null ? image.path : null;
+    bloc.book.imagePath = image?.path;
     booksBloc.updateBook(bloc.book);
     bloc.notifyListeners();
   }

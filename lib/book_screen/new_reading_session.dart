@@ -8,18 +8,19 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class NewReadingSessionScreen extends StatefulWidget {
-  NewReadingSessionScreen(this.bloc, this.book);
+  const NewReadingSessionScreen(this.bloc, this.book, {Key key})
+      : super(key: key);
 
   final BookBloc bloc;
   final Book book;
 
   @override
   _NewReadingSessionScreenState createState() =>
-      _NewReadingSessionScreenState(this.bloc);
+      _NewReadingSessionScreenState();
 }
 
 class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
-  _NewReadingSessionScreenState(this.bloc);
+  _NewReadingSessionScreenState();
 
   BookBloc bloc;
 
@@ -30,11 +31,17 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
 
   bool _timedSession = true;
 
-  TextEditingController _editingController = TextEditingController();
+  final TextEditingController _editingController = TextEditingController();
   bool empty = false;
   bool number = true;
 
-  saveSession(Duration duration) {
+  @override
+  void initState() {
+    bloc = widget.bloc;
+    super.initState();
+  }
+
+  void saveSession(Duration duration) {
     final text = _editingController.text;
     if (text.isEmpty) {
       setState(() {
@@ -194,28 +201,28 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
 class TimerText extends StatelessWidget {
   final NumberFormat formatter = NumberFormat("00");
 
+  TimerText({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Consumer<TimerService>(builder: (context, service, widget) {
-      return Container(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: <Widget>[
-            Text(
-              "${formatter.format(service.currentDuration.inHours)}:${formatter.format(service.currentDuration.inMinutes % 60)}",
-              style: TextStyle(fontSize: 48),
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          Text(
+            "${formatter.format(service.currentDuration.inHours)}:${formatter.format(service.currentDuration.inMinutes % 60)}",
+            style: TextStyle(fontSize: 48),
+          ),
+          Baseline(
+            baseline: -12,
+            baselineType: TextBaseline.alphabetic,
+            child: Text(
+              ":${formatter.format(service.currentDuration.inSeconds % 60)}",
+              style: TextStyle(fontSize: 24),
             ),
-            Baseline(
-              baseline: -12,
-              baselineType: TextBaseline.alphabetic,
-              child: Text(
-                ":${formatter.format(service.currentDuration.inSeconds % 60)}",
-                style: TextStyle(fontSize: 24),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       );
     });
   }

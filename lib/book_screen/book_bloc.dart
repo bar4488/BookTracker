@@ -6,9 +6,9 @@ import '../models/book.dart';
 import '../books_firebase.dart';
 
 class BookBloc extends ChangeNotifier {
-  static FirebaseDatabase _db = FirebaseDatabase();
+  static final FirebaseDatabase _db = FirebaseDatabase();
 
-  BookBloc(this.book){
+  BookBloc(this.book) {
     sessions = _db.readingSessionsOf(book.id);
   }
   Book book;

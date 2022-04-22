@@ -21,16 +21,17 @@ class BookScreenScreen extends StatefulWidget {
 
   @override
   BookScreenScreenState createState() {
-    return BookScreenScreenState(BookBloc(book));
+    return BookScreenScreenState();
   }
 }
 
 class BookScreenScreenState extends State<BookScreenScreen> {
-  BookScreenScreenState(this.bloc);
+  BookScreenScreenState();
   BookBloc bloc;
 
   @override
   void initState() {
+    bloc = BookBloc(widget.book);
     bloc.addListener(() => setState(() {}));
     super.initState();
   }
@@ -56,7 +57,9 @@ class BookScreenScreenState extends State<BookScreenScreen> {
             (session.duration.inSeconds / 3600))
         .toList();
     double sum = 0;
-    avgs.forEach((i) => sum += i);
+    for (var i in avgs) {
+      sum += i;
+    }
     return sum / avgs.length;
   }
 
@@ -121,7 +124,7 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            "${widget.book.name}",
+                            widget.book.name,
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[800],
@@ -172,62 +175,60 @@ class BookScreenScreenState extends State<BookScreenScreen> {
               )),
           Expanded(
             flex: 3,
-            child: Container(
-              child: FutureBuilder<List<ReadingSession>>(
-                future: bloc.sessions,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    List<ReadingSession> sessions = snapshot.data;
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 16),
-                          height: 20,
-                          decoration: BoxDecoration(
-                            border: Border(
-                              top: BorderSide(color: Colors.black26),
-                            ),
+            child: FutureBuilder<List<ReadingSession>>(
+              future: bloc.sessions,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  List<ReadingSession> sessions = snapshot.data;
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 16),
+                        height: 20,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: Colors.black26),
                           ),
                         ),
-                        if (sessions.isNotEmpty)
-                          Expanded(
-                            child: ListView.builder(
-                              physics: BouncingScrollPhysics(),
-                              itemCount: sessions.length,
-                              itemBuilder: (context, index) {
-                                index = sessions.length - 1 - index;
-                                return ReadingSessionItem(
-                                  bloc,
-                                  sessions[index],
-                                  onDelete: () {
-                                    ReadingSession session = sessions[index];
-                                    bloc.removeReadingSession(session);
-                                  },
-                                );
-                              },
-                            ),
+                      ),
+                      if (sessions.isNotEmpty)
+                        Expanded(
+                          child: ListView.builder(
+                            physics: BouncingScrollPhysics(),
+                            itemCount: sessions.length,
+                            itemBuilder: (context, index) {
+                              index = sessions.length - 1 - index;
+                              return ReadingSessionItem(
+                                bloc,
+                                sessions[index],
+                                onDelete: () {
+                                  ReadingSession session = sessions[index];
+                                  bloc.removeReadingSession(session);
+                                },
+                              );
+                            },
                           ),
-                        if (sessions.isEmpty)
-                          Container(
-                            padding: EdgeInsets.only(left: 16, right: 16),
-                            child: Text(
-                              "you dont have any reading sessions...\n\npress the floating button to start a new one!",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                        ),
+                      if (sessions.isEmpty)
+                        Container(
+                          padding: EdgeInsets.only(left: 16, right: 16),
+                          child: Text(
+                            "you dont have any reading sessions...\n\npress the floating button to start a new one!",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                fontWeight: FontWeight.bold),
                           ),
-                      ],
-                    );
-                  }
-
-                  return Center(
-                    child: Text("Loading..."),
+                        ),
+                    ],
                   );
-                },
-              ),
+                }
+
+                return Center(
+                  child: Text("Loading..."),
+                );
+              },
             ),
           )
         ],
@@ -241,7 +242,8 @@ class BookScreenScreenState extends State<BookScreenScreen> {
 }
 
 class ReadingSessionItem extends StatelessWidget {
-  ReadingSessionItem(this.bloc, this.session, {this.onDelete});
+  const ReadingSessionItem(this.bloc, this.session, {Key key, this.onDelete})
+      : super(key: key);
 
   final ReadingSession session;
   final BookBloc bloc;
@@ -299,7 +301,7 @@ class ReadingSessionItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 if (session.startTime != null)
-                  Text("${timeago.format(session.startTime)}"),
+                  Text(timeago.format(session.startTime)),
                 if (session.duration != null &&
                     session.duration.inMicroseconds != 0)
                   Text(
