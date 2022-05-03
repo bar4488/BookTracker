@@ -18,10 +18,16 @@ class EditBookPage extends StatefulWidget {
   _EditBookPageState createState() => _EditBookPageState();
 }
 
-class _EditBookPageState extends State<EditBookPage> with ChangeNotifier {
+class _EditBookPageState extends State<EditBookPage> {
   File image;
   final _formKey = GlobalKey<FormState>();
   BookBloc bloc;
+
+  @override
+  void initState() {
+    bloc = widget.bloc;
+    super.initState();
+  }
 
   @override
   void setState(VoidCallback fn) {
@@ -193,6 +199,11 @@ class _EditBookPageState extends State<EditBookPage> with ChangeNotifier {
   void _updateBook(BooksBloc booksBloc) {
     bloc.book.imagePath = image?.path;
     booksBloc.updateBook(bloc.book);
-    bloc.notifyListeners();
+    bloc.notify();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

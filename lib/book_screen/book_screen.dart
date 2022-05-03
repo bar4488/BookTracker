@@ -100,17 +100,35 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                       aspectRatio: 3 / 4,
                       child: Container(
                         margin: EdgeInsets.all(16),
-                        child: Container(
-                          decoration: ShapeDecoration(
-                            color: Colors.red,
-                            image: widget.book.imagePath != null
-                                ? DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image:
-                                        FileImage(File(widget.book.imagePath)),
-                                  )
-                                : null,
+                        child: ClipPath(
+                          clipper: ShapeBorderClipper(
                             shape: shape,
+                          ),
+                          child: Stack(
+                            children: [
+                              Container(
+                                decoration: ShapeDecoration(
+                                  color: Colors.red,
+                                  image: widget.book.imagePath != null
+                                      ? DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: FileImage(
+                                              File(widget.book.imagePath)),
+                                        )
+                                      : null,
+                                  shape: shape,
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                left: 0,
+                                child: LinearProgressIndicator(
+                                  value: widget.book.currentPage /
+                                      widget.book.pageCount,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),

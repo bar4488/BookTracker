@@ -47,4 +47,8 @@ class BookBloc extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void notify() {
+    notifyListeners();
+  }
 }

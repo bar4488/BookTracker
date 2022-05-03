@@ -1,4 +1,4 @@
-import 'package:book_tracker/book_screen/book_screen_screen.dart';
+import 'package:book_tracker/book_screen/book_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'auth.dart';
 import 'login_page.dart';

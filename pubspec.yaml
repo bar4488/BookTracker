@@ -14,13 +14,13 @@ description: A new Flutter application.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.3.0 <3.0.0"
+  sdk: ">=2.10.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   # new packages for null safety
-  provider:
+  provider: ^6.0.2
   image_picker: ^0.8.5
   timeago: ^3.2.2
   path: ^1.8.0
