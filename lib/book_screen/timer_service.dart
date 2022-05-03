@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 class TimerService extends ChangeNotifier {
-  Timer _timer;
+  Timer? _timer;
 
   Duration get currentDuration => _currentDuration;
   Duration _currentDuration = Duration.zero;
 
   bool get isRunning => _timer != null;
   bool finished = false;
-  DateTime _startTime;
+  late DateTime _startTime;
 
   void _onTick(Timer timer) {
     _currentDuration = DateTime.now().difference(_startTime);

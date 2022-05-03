@@ -11,21 +11,21 @@ import 'package:provider/provider.dart';
 class AddBookPage extends StatefulWidget {
   final String title = "Add Book";
 
-  const AddBookPage({Key key}) : super(key: key);
+  const AddBookPage({Key? key}) : super(key: key);
 
   @override
   _AddBookPageState createState() => _AddBookPageState();
 }
 
 class _AddBookPageState extends State<AddBookPage> {
-  File image;
+  File? image;
   final _formKey = GlobalKey<FormState>();
-  String name;
-  String writer;
-  int pageCount;
+  String? name;
+  String? writer;
+  int? pageCount;
 
   void getImage() async {
-    File image;
+    File? image;
     final ImagePicker _picker = ImagePicker();
 
     showDialog(
@@ -37,14 +37,15 @@ class _AddBookPageState extends State<AddBookPage> {
             TextButton(
               child: Text("Camera"),
               onPressed: () async {
-                XFile tmp = await _picker.pickImage(source: ImageSource.camera);
-                if (tmp != null && tmp.path != null) {
+                XFile? tmp =
+                    await _picker.pickImage(source: ImageSource.camera);
+                if (tmp != null) {
                   image = File((tmp).path);
                   var decodedImage =
-                      await decodeImageFromList(await image.readAsBytes());
+                      await decodeImageFromList(await image!.readAsBytes());
                   if (decodedImage.width > decodedImage.height) {
                     image = await FlutterImageCompress.compressAndGetFile(
-                        image.path, image.path,
+                        image!.path, image!.path,
                         autoCorrectionAngle: true, rotate: 90);
                   }
                 }
@@ -58,15 +59,15 @@ class _AddBookPageState extends State<AddBookPage> {
             TextButton(
               child: Text("Gallery"),
               onPressed: () async {
-                XFile tmp =
+                XFile? tmp =
                     await _picker.pickImage(source: ImageSource.gallery);
-                if (tmp != null && tmp.path != null) {
+                if (tmp != null) {
                   image = File((tmp).path);
                   var decodedImage =
-                      await decodeImageFromList(await image.readAsBytes());
+                      await decodeImageFromList(await image!.readAsBytes());
                   if (decodedImage.width > decodedImage.height) {
                     image = await FlutterImageCompress.compressAndGetFile(
-                        image.path, image.path,
+                        image!.path, image!.path,
                         autoCorrectionAngle: true, rotate: 90);
                   }
                 }
@@ -115,7 +116,7 @@ class _AddBookPageState extends State<AddBookPage> {
                         image: image != null
                             ? DecorationImage(
                                 fit: BoxFit.cover,
-                                image: FileImage(image),
+                                image: FileImage(image!),
                               )
                             : null,
                         shape: ContinuousRectangleBorder(
@@ -131,7 +132,7 @@ class _AddBookPageState extends State<AddBookPage> {
                   ),
                   TextFormField(
                     validator: (value) {
-                      if (value.isEmpty) return "please enter book name";
+                      if (value!.isEmpty) return "please enter book name";
                       name = value;
                       return null;
                     },
@@ -144,7 +145,7 @@ class _AddBookPageState extends State<AddBookPage> {
                   ),
                   TextFormField(
                     validator: (value) {
-                      if (value.isEmpty) return "please enter writer name";
+                      if (value!.isEmpty) return "please enter writer name";
                       writer = value;
                       return null;
                     },
@@ -158,7 +159,7 @@ class _AddBookPageState extends State<AddBookPage> {
                   TextFormField(
                     keyboardType: TextInputType.number,
                     validator: (value) {
-                      if (value.isEmpty) return "please enter number of pages";
+                      if (value!.isEmpty) return "please enter number of pages";
                       if (int.tryParse(value) == null) {
                         return "number of pages must be a number";
                       }
@@ -181,7 +182,7 @@ class _AddBookPageState extends State<AddBookPage> {
       floatingActionButton: FloatingActionButton.extended(
         label: Text("Add Book"),
         onPressed: () {
-          if (_formKey.currentState.validate()) {
+          if (_formKey.currentState!.validate()) {
             _addBook(bloc);
             Navigator.of(context).pop();
           }
@@ -193,9 +194,9 @@ class _AddBookPageState extends State<AddBookPage> {
 
   void _addBook(BooksBloc bloc) {
     bloc.addBook(Book(
-        name: name,
-        pageCount: pageCount,
-        writer: writer,
+        name: name!,
+        pageCount: pageCount!,
+        writer: writer!,
         imagePath: image?.path));
   }
 }

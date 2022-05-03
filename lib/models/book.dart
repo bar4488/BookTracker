@@ -1,11 +1,17 @@
-class Book{
+class Book {
+  Book({
+    this.id,
+    required this.name,
+    required this.writer,
+    required this.imagePath,
+    required this.pageCount,
+    this.currentPage = 0,
+  });
 
-  Book({this.id, this.name, this.writer, this.imagePath, this.pageCount, this.currentPage = 0});
-
-  String id;
+  String? id;
   String name;
   String writer;
-  String imagePath;
+  String? imagePath;
   int pageCount;
   int currentPage;
 
@@ -20,7 +26,7 @@ class Book{
     };
   }
 
-  factory Book.fromMap(Map<String, dynamic> map){
+  factory Book.fromMap(Map<String, dynamic> map) {
     return Book(
       id: map["id"],
       name: map["name"],

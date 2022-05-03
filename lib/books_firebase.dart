@@ -6,7 +6,7 @@ import 'models/book.dart';
 import 'models/reading_session.dart';
 
 class FirebaseDatabase {
-  FirebaseFirestore firestore;
+  late FirebaseFirestore firestore;
 
   FirebaseDatabase() {
     firestore = FirebaseFirestore.instance;
@@ -30,7 +30,7 @@ class FirebaseDatabase {
 
   Future<List<Book>> books() async {
     QuerySnapshot s = await (await booksCollection).get();
-    return s.docs.map((e) => Book.fromMap(e.data())).toList();
+    return s.docs.map((e) => Book.fromMap(e.data() as Map<String, dynamic>)).toList();
   }
 
   Future updateBook(Book book) async {
@@ -38,7 +38,7 @@ class FirebaseDatabase {
     doc.set(book.toMap());
   }
 
-  Future deleteBook(String id) async {
+  Future deleteBook(String? id) async {
     DocumentReference doc = (await booksCollection).doc(id);
     QuerySnapshot s = await doc.collection("readingSession").get();
     for (var element in s.docs) {
@@ -60,9 +60,9 @@ class FirebaseDatabase {
 
   Future<List<ReadingSession>> readingSessions() async {
     QuerySnapshot s = await (await readingSessionsCollection).get();
-    return s.docs.map((e) => ReadingSession.fromMap(e.data())).toList()
-      ..sort((a, b) => (a.startTime.millisecondsSinceEpoch)
-          .compareTo(b.startTime.millisecondsSinceEpoch));
+    return s.docs.map((e) => ReadingSession.fromMap(e.data() as Map<String, dynamic>)).toList()
+      ..sort((a, b) => (a.startTime!.millisecondsSinceEpoch)
+          .compareTo(b.startTime!.millisecondsSinceEpoch));
   }
 
   Future updateReadingSession(ReadingSession readingSession) async {
@@ -76,23 +76,23 @@ class FirebaseDatabase {
         .set(readingSession.toMap());
   }
 
-  Future deleteReadingSession(String id) async {
+  Future deleteReadingSession(String? id) async {
     var readingSessionDoc = (await readingSessionsCollection).doc(id);
-    String bookId = ((await readingSessionDoc.get()).data()
+    String? bookId = ((await readingSessionDoc.get()).data()
         as Map<String, dynamic>)["bookId"];
     readingSessionDoc.delete();
     var bookDoc = (await booksCollection).doc(bookId);
     await bookDoc.collection("readingSession").doc(id).delete();
   }
 
-  Future<List<ReadingSession>> readingSessionsOf(String bookId) async {
+  Future<List<ReadingSession>> readingSessionsOf(String? bookId) async {
     QuerySnapshot s = await (await booksCollection)
         .doc(bookId)
         .collection("readingSession")
         .get();
-    return s.docs.map((e) => ReadingSession.fromMap(e.data())).toList()
-      ..sort((a, b) => (a.startTime.millisecondsSinceEpoch)
-          .compareTo(b.startTime.millisecondsSinceEpoch));
+    return s.docs.map((e) => ReadingSession.fromMap(e.data() as Map<String, dynamic>)).toList()
+      ..sort((a, b) => (a.startTime!.millisecondsSinceEpoch)
+          .compareTo(b.startTime!.millisecondsSinceEpoch));
   }
 /*
 

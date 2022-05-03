@@ -1,13 +1,19 @@
-class ReadingSession{
+class ReadingSession {
+  ReadingSession({
+    this.id,
+    required this.bookId,
+    required this.startPage,
+    required this.endPage,
+    this.startTime,
+    this.duration,
+  });
 
-  ReadingSession({this.id, this.bookId, this.startPage, this.endPage, this.startTime, this.duration});
-
-  String id;
+  String? id;
   String bookId;
   int startPage;
   int endPage;
-  DateTime startTime;
-  Duration duration;
+  DateTime? startTime;
+  Duration? duration;
 
   Map<String, dynamic> toMap() {
     return {
@@ -15,21 +21,19 @@ class ReadingSession{
       'bookId': bookId,
       'startPage': startPage,
       'endPage': endPage,
-      if(startTime != null)
-      'startTime': startTime.millisecondsSinceEpoch,
-      if(duration != null)
-      'duration': duration.inSeconds,
+      if (startTime != null) 'startTime': startTime!.millisecondsSinceEpoch,
+      if (duration != null) 'duration': duration!.inSeconds,
     };
   }
 
-  factory ReadingSession.fromMap(Map<String, dynamic> map){
+  factory ReadingSession.fromMap(Map<String, dynamic> map) {
     return ReadingSession(
       id: map["id"],
       bookId: map["bookId"],
       startPage: map["startPage"],
       endPage: map["endPage"],
       startTime: DateTime.fromMillisecondsSinceEpoch(map["startTime"]),
-      duration:  Duration(seconds: map["duration"]),
+      duration: Duration(seconds: map["duration"]),
     );
   }
 }

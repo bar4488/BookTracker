@@ -16,7 +16,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key key}) : super(key: key);
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -46,7 +46,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool currentlyDeleting = false;
-  Auth auth;
+  Auth? auth;
   @override
   void initState() {
     super.initState();
@@ -55,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future checkLogin() async {
     auth = Auth();
-    if (!await auth.isLoggedIn()) {
+    if (!await auth!.isLoggedIn()) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -98,12 +98,12 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Stack(
           children: <Widget>[
-            FutureBuilder(
+            FutureBuilder<List<Book>>(
               future: bloc.books,
               builder: (context, snapshot) {
                 Widget widget;
                 if (snapshot.hasData) {
-                  List<Book> books = snapshot.data;
+                  List<Book> books = snapshot.data!;
                   if (books.isEmpty) {
                     return Center(
                       child: Text(
@@ -215,7 +215,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 leading: Icon(Icons.exit_to_app),
                 title: Text('Logout'),
                 onTap: () {
-                  auth.signOut();
+                  auth!.signOut();
                   Navigator.push(context,
                       MaterialPageRoute(builder: (_) => LoginPage(auth)));
                 },

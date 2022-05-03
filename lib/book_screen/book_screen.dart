@@ -13,8 +13,8 @@ import 'book_bloc.dart';
 
 class BookScreenScreen extends StatefulWidget {
   const BookScreenScreen({
-    Key key,
-    this.book,
+    Key? key,
+    required this.book,
   }) : super(key: key);
 
   final Book book;
@@ -27,12 +27,12 @@ class BookScreenScreen extends StatefulWidget {
 
 class BookScreenScreenState extends State<BookScreenScreen> {
   BookScreenScreenState();
-  BookBloc bloc;
+  BookBloc? bloc;
 
   @override
   void initState() {
     bloc = BookBloc(widget.book);
-    bloc.addListener(() => setState(() {}));
+    bloc!.addListener(() => setState(() {}));
     super.initState();
   }
 
@@ -51,10 +51,10 @@ class BookScreenScreenState extends State<BookScreenScreen> {
 
   double averagePagesPerHour(List<ReadingSession> sessions) {
     List<double> avgs = sessions
-        .where((s) => s.duration.inMicroseconds != 0)
+        .where((s) => s.duration!.inMicroseconds != 0)
         .map((session) =>
             (session.endPage - session.startPage) /
-            (session.duration.inSeconds / 3600))
+            (session.duration!.inSeconds / 3600))
         .toList();
     double sum = 0;
     for (var i in avgs) {
@@ -113,7 +113,7 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                                       ? DecorationImage(
                                           fit: BoxFit.cover,
                                           image: FileImage(
-                                              File(widget.book.imagePath)),
+                                              File(widget.book.imagePath!)),
                                         )
                                       : null,
                                   shape: shape,
@@ -171,10 +171,10 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                             height: 8,
                           ),
                           FutureBuilder<List<ReadingSession>>(
-                            future: bloc.sessions,
+                            future: bloc!.sessions,
                             builder: (context, snapshot) {
                               if (!snapshot.hasData) return SizedBox();
-                              final sessions = snapshot.data;
+                              final sessions = snapshot.data!;
                               NumberFormat n = NumberFormat("#.#");
                               return Text(
                                 "pages an hour: ${n.format(averagePagesPerHour(sessions))}",
@@ -194,10 +194,10 @@ class BookScreenScreenState extends State<BookScreenScreen> {
           Expanded(
             flex: 3,
             child: FutureBuilder<List<ReadingSession>>(
-              future: bloc.sessions,
+              future: bloc!.sessions,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  List<ReadingSession> sessions = snapshot.data;
+                  List<ReadingSession> sessions = snapshot.data!;
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -222,7 +222,7 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                                 sessions[index],
                                 onDelete: () {
                                   ReadingSession session = sessions[index];
-                                  bloc.removeReadingSession(session);
+                                  bloc!.removeReadingSession(session);
                                 },
                               );
                             },
@@ -260,12 +260,12 @@ class BookScreenScreenState extends State<BookScreenScreen> {
 }
 
 class ReadingSessionItem extends StatelessWidget {
-  const ReadingSessionItem(this.bloc, this.session, {Key key, this.onDelete})
+  const ReadingSessionItem(this.bloc, this.session, {Key? key, this.onDelete})
       : super(key: key);
 
   final ReadingSession session;
-  final BookBloc bloc;
-  final Function() onDelete;
+  final BookBloc? bloc;
+  final Function()? onDelete;
 
   void deleteReadingSession(BuildContext context) {
     showDialog(
@@ -286,7 +286,7 @@ class ReadingSessionItem extends StatelessWidget {
               ),
               child: Text("Yes"),
               onPressed: () {
-                onDelete();
+                onDelete!();
                 Navigator.of(context).pop();
               },
             ),
@@ -319,13 +319,13 @@ class ReadingSessionItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 if (session.startTime != null)
-                  Text(timeago.format(session.startTime)),
+                  Text(timeago.format(session.startTime!)),
                 if (session.duration != null &&
-                    session.duration.inMicroseconds != 0)
+                    session.duration!.inMicroseconds != 0)
                   Text(
-                    session.duration.inSeconds > 60
-                        ? "${session.duration.inHours} hours, ${session.duration.inMinutes % 60} minutes"
-                        : "${session.duration.inSeconds} seconds",
+                    session.duration!.inSeconds > 60
+                        ? "${session.duration!.inHours} hours, ${session.duration!.inMinutes % 60} minutes"
+                        : "${session.duration!.inSeconds} seconds",
                   ),
               ],
             ),

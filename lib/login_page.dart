@@ -2,9 +2,9 @@ import 'auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage(this.auth, {Key key}) : super(key: key);
+  const LoginPage(this.auth, {Key? key}) : super(key: key);
 
-  final Auth auth;
+  final Auth? auth;
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
           child: ElevatedButton(
             child: Text("Login with google"),
             onPressed: () async {
-              bool res = await widget.auth.authenticateWithGoogle();
+              bool res = await widget.auth!.authenticateWithGoogle();
               if (res) {
                 Navigator.pop(context);
               }

@@ -4,10 +4,10 @@ enum PressState { pressed, hold, unpressed }
 
 class PressEffect extends StatefulWidget {
   PressEffect(
-      {Key key,
+      {Key? key,
       this.builder,
       this.child,
-      @required this.shape,
+      required this.shape,
       this.color,
       this.height,
       this.width,
@@ -20,15 +20,15 @@ class PressEffect extends StatefulWidget {
     assert((builder == null) != (child == null));
   }
 
-  final Widget Function(double value, PressState state) builder;
-  final Function() onTap;
-  final Function() onLongPress;
-  final Widget child;
+  final Widget Function(double value, PressState state)? builder;
+  final Function()? onTap;
+  final Function()? onLongPress;
+  final Widget? child;
   final ShapeBorder shape;
-  final Color color;
-  final Color pressedColor;
-  final double height;
-  final double width;
+  final Color? color;
+  final Color? pressedColor;
+  final double? height;
+  final double? width;
 
   @override
   _PressEffectState createState() => _PressEffectState();
@@ -36,9 +36,9 @@ class PressEffect extends StatefulWidget {
 
 class _PressEffectState extends State<PressEffect>
     with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
-  Animation<double> _animationTween;
-  CurvedAnimation _animation;
+  late AnimationController _animationController;
+  late Animation<double> _animationTween;
+  late CurvedAnimation _animation;
   PressState state = PressState.unpressed;
 
   @override
@@ -78,8 +78,8 @@ class _PressEffectState extends State<PressEffect>
         horizontal: 16 + (_animation.value - 1) * -10,
         vertical: 16 + (_animation.value - 1) * -10,
       ),
-      width: widget.width != null ? widget.width + 32 : null,
-      height: widget.height != null ? widget.height + 32 : null,
+      width: widget.width != null ? widget.width! + 32 : null,
+      height: widget.height != null ? widget.height! + 32 : null,
       child: Material(
         elevation: state != PressState.unpressed ? 5 : 25,
         shape: widget.shape,
@@ -95,7 +95,7 @@ class _PressEffectState extends State<PressEffect>
           onLongPress: widget.onLongPress,
           onTapCancel: _onTapCancel,
           child:
-              widget.child ?? widget.builder(_animationController.value, state),
+              widget.child ?? widget.builder!(_animationController.value, state),
         ),
       ),
     );

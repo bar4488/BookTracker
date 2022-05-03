@@ -8,10 +8,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class NewReadingSessionScreen extends StatefulWidget {
-  const NewReadingSessionScreen(this.bloc, this.book, {Key key})
+  const NewReadingSessionScreen(this.bloc, this.book, {Key? key})
       : super(key: key);
 
-  final BookBloc bloc;
+  final BookBloc? bloc;
   final Book book;
 
   @override
@@ -22,14 +22,14 @@ class NewReadingSessionScreen extends StatefulWidget {
 class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
   _NewReadingSessionScreenState();
 
-  BookBloc bloc;
+  BookBloc? bloc;
 
   GlobalKey first = GlobalKey();
   GlobalKey second = GlobalKey();
   GlobalKey third = GlobalKey();
-  DateTime startTime;
+  DateTime? startTime;
 
-  bool _timedSession = true;
+  bool? _timedSession = true;
 
   final TextEditingController _editingController = TextEditingController();
   bool empty = false;
@@ -49,7 +49,7 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
       });
       return;
     }
-    int currentPage = int.tryParse(text);
+    int? currentPage = int.tryParse(text);
     if (currentPage == null) {
       setState(() {
         empty = false;
@@ -58,12 +58,12 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
       return;
     }
     ReadingSession newSession = ReadingSession(
-        bookId: widget.book.id,
+        bookId: widget.book.id!,
         startPage: widget.book.currentPage,
         endPage: currentPage,
         startTime: startTime ?? DateTime.now(),
         duration: duration);
-    bloc.addReadingSession(newSession);
+    bloc!.addReadingSession(newSession);
     Navigator.of(context).pop();
   }
 
@@ -83,7 +83,8 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
           ),
         ),
         body: Align(
-          alignment: Alignment.lerp(Alignment.center, Alignment.topCenter, 0.4),
+          alignment:
+              Alignment.lerp(Alignment.center, Alignment.topCenter, 0.4)!,
           child: Consumer<TimerService>(
             builder: (context, service, child) {
               return AnimatedContainer(
@@ -121,9 +122,9 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
                         )
                       ],
                     ),
-                    if (_timedSession) TimerText(),
+                    if (_timedSession!) TimerText(),
                     SizedBox(height: 24),
-                    !service.finished && _timedSession
+                    !service.finished && _timedSession!
                         ? SizedBox()
                         : TextField(
                             keyboardType: TextInputType.number,
@@ -165,13 +166,13 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
                 child: FloatingActionButton.extended(
                   key: service.isRunning
                       ? second
-                      : service.finished || _timedSession
+                      : service.finished || _timedSession!
                           ? third
                           : first,
                   backgroundColor: Theme.of(context).canvasColor,
                   onPressed: service.isRunning
                       ? service.stop
-                      : service.finished || !_timedSession
+                      : service.finished || !_timedSession!
                           ? () => saveSession(service.currentDuration)
                           : () {
                               service.start();
@@ -182,7 +183,7 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
                     child: Text(
                       service.isRunning
                           ? "Finish"
-                          : service.finished || !_timedSession
+                          : service.finished || !_timedSession!
                               ? "Save Session"
                               : "Start Reading",
                       style: TextStyle(color: Colors.black),
@@ -201,7 +202,7 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
 class TimerText extends StatelessWidget {
   final NumberFormat formatter = NumberFormat("00");
 
-  TimerText({Key key}) : super(key: key);
+  TimerText({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

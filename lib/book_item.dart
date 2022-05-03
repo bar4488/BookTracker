@@ -7,9 +7,9 @@ import 'widgets/press_effect.dart';
 
 class BookItem extends StatefulWidget {
   const BookItem({
-    Key key,
+    Key? key,
     this.isDeleting = false,
-    @required this.book,
+    required this.book,
     this.onLongPress,
     this.onTap,
     this.onDelete,
@@ -17,9 +17,9 @@ class BookItem extends StatefulWidget {
 
   final Book book;
   final bool isDeleting;
-  final Function() onTap;
-  final Function() onDelete;
-  final Function() onLongPress;
+  final Function()? onTap;
+  final Function()? onDelete;
+  final Function()? onLongPress;
 
   @override
   _BookItemState createState() => _BookItemState();
@@ -27,7 +27,7 @@ class BookItem extends StatefulWidget {
 
 class _BookItemState extends State<BookItem>
     with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
+  late AnimationController _animationController;
 
   @override
   void initState() {
@@ -69,7 +69,7 @@ class _BookItemState extends State<BookItem>
               child: Text("Yes"),
               onPressed: () async {
                 bloc.removeBook(widget.book);
-                if (widget.onDelete != null) widget.onDelete();
+                if (widget.onDelete != null) widget.onDelete!();
                 Navigator.of(context).pop();
               },
             )
@@ -115,14 +115,15 @@ class _BookItemState extends State<BookItem>
                   fit: StackFit.expand,
                   children: <Widget>[
                     Hero(
-                      tag: "cover" + widget.book.id,
+                      tag: "cover" + widget.book.id!,
                       child: Container(
                         decoration: ShapeDecoration(
                           color: Colors.red,
                           image: widget.book.imagePath != null
                               ? DecorationImage(
                                   fit: BoxFit.cover,
-                                  image: FileImage(File(widget.book.imagePath)),
+                                  image:
+                                      FileImage(File(widget.book.imagePath!)),
                                 )
                               : null,
                           shape: shape,

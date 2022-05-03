@@ -8,14 +8,14 @@ enum ViewState {
 }
 
 class DestinationTitleContent extends StatelessWidget {
-  final String text;
-  final double fontSize;
-  final int maxLines;
-  final TextOverflow overflow;
-  final bool isOverflow;
+  final String? text;
+  final double? fontSize;
+  final int? maxLines;
+  final TextOverflow? overflow;
+  final bool? isOverflow;
 
   const DestinationTitleContent({
-    Key key,
+    Key? key,
     this.text,
     this.fontSize,
     this.maxLines,
@@ -24,7 +24,7 @@ class DestinationTitleContent extends StatelessWidget {
   }) : super(key: key);
 
   Widget _buildTitleText() => Text(
-        text,
+        text!,
         maxLines: maxLines,
         overflow: overflow,
         style: TextStyle(
@@ -39,7 +39,7 @@ class DestinationTitleContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      child: isOverflow
+      child: isOverflow!
           ? OverflowBox(
               alignment: Alignment.topLeft,
               maxWidth: double.infinity,
@@ -61,9 +61,9 @@ class DestinationTitle extends StatefulWidget {
   final bool isOverflow;
 
   const DestinationTitle({
-    Key key,
-    @required this.title,
-    @required this.viewState,
+    Key? key,
+    required this.title,
+    required this.viewState,
     this.smallFontSize = 15.0,
     this.largeFontSize = 48.0,
     this.maxLines = 2,
@@ -77,10 +77,10 @@ class DestinationTitle extends StatefulWidget {
 
 class _DestinationTitleState extends State<DestinationTitle>
     with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
-  Animation<double> _fontSizeTween;
+  late AnimationController _animationController;
+  late Animation<double> _fontSizeTween;
 
-  double fontSize;
+  double? fontSize;
 
   @override
   void initState() {
