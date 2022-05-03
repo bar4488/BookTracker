@@ -1,4 +1,5 @@
 import 'package:book_tracker/book_screen/book_bloc.dart';
+import 'package:book_tracker/book_screen/comment_dialog.dart';
 import 'package:book_tracker/book_screen/timer_service.dart';
 import 'package:book_tracker/models/book.dart';
 import 'package:book_tracker/models/reading_session.dart';
@@ -89,7 +90,8 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
             builder: (context, service, child) {
               return AnimatedContainer(
                 duration: Duration(milliseconds: 400),
-                padding: EdgeInsets.symmetric(vertical: 64, horizontal: 16),
+                padding:
+                    EdgeInsets.only(top: 64, bottom: 8, left: 16, right: 16),
                 margin: EdgeInsets.symmetric(horizontal: 32),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -139,6 +141,20 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
                               border: OutlineInputBorder(),
                             ),
                           ),
+                    TextButton(
+                      onPressed: () {
+                        FocusScope.of(context).requestFocus(
+                            FocusNode()); // remove focus from text field if there is
+
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return CommentDialog();
+                          },
+                        );
+                      },
+                      child: Text("add comment"),
+                    ),
                   ],
                 ),
                 decoration: ShapeDecoration(
@@ -216,7 +232,7 @@ class TimerText extends StatelessWidget {
             style: TextStyle(fontSize: 48),
           ),
           Baseline(
-            baseline: -12,
+            baseline: -8,
             baselineType: TextBaseline.alphabetic,
             child: Text(
               ":${formatter.format(service.currentDuration.inSeconds % 60)}",

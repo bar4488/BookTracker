@@ -14,6 +14,13 @@ class ReadingSession {
   int endPage;
   DateTime? startTime;
   Duration? duration;
+  String? comment;
+
+  double? get pagesPerHour => duration == null
+      ? null
+      : (endPage - startPage) / duration!.inSeconds * 3600;
+
+  bool get hasDuration => duration != null && duration!.inMicroseconds != 0;
 
   Map<String, dynamic> toMap() {
     return {

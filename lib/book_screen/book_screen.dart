@@ -298,7 +298,7 @@ class ReadingSessionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // NumberFormat n = NumberFormat("00");
+    NumberFormat n = NumberFormat("#.#");
     return Container(
       decoration: BoxDecoration(
         border: Border(),
@@ -315,18 +315,25 @@ class ReadingSessionItem extends StatelessWidget {
             ),
             leading: Icon(Icons.chrome_reader_mode),
             title: Text("${session.endPage - session.startPage} pages read"),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                if (session.startTime != null)
-                  Text(timeago.format(session.startTime!)),
-                if (session.duration != null &&
-                    session.duration!.inMicroseconds != 0)
-                  Text(
-                    session.duration!.inSeconds > 60
-                        ? "${session.duration!.inHours} hours, ${session.duration!.inMinutes % 60} minutes"
-                        : "${session.duration!.inSeconds} seconds",
+            subtitle: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      if (session.startTime != null)
+                        Text(timeago.format(session.startTime!)),
+                      if (session.duration != null &&
+                          session.duration!.inMicroseconds != 0)
+                        Text(
+                          session.duration!.inSeconds > 60
+                              ? "${session.duration!.inHours} hours, ${session.duration!.inMinutes % 60} minutes"
+                              : "${session.duration!.inSeconds} seconds",
+                        ),
+                    ],
                   ),
+                ),
+                if (session.hasDuration) Text(n.format(session.pagesPerHour!)),
               ],
             ),
           ),
