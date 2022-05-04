@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:book_tracker/book_screen/new_reading_session.dart';
+import 'package:book_tracker/book_screen/reading_session_dialog.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:book_tracker/book_screen/book_bloc.dart';
 import 'package:book_tracker/models/book.dart';
@@ -219,9 +220,9 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                               index = sessions.length - 1 - index;
                               return ReadingSessionItem(
                                 bloc,
-                                sessions[index],
-                                onDelete: () {
-                                  ReadingSession session = sessions[index];
+                                sessions,
+                                index,
+                                onDelete: (session) {
                                   bloc!.removeReadingSession(session);
                                 },
                               );
@@ -260,15 +261,18 @@ class BookScreenScreenState extends State<BookScreenScreen> {
 }
 
 class ReadingSessionItem extends StatelessWidget {
-  const ReadingSessionItem(this.bloc, this.session, {Key? key, this.onDelete})
+  const ReadingSessionItem(this.bloc, this.sessions, this.index,
+      {Key? key, this.onDelete})
       : super(key: key);
 
-  final ReadingSession session;
+  final List<ReadingSession> sessions;
+  final int index;
   final BookBloc? bloc;
-  final Function()? onDelete;
+  final Function(ReadingSession)? onDelete;
 
-  void deleteReadingSession(BuildContext context) {
-    showDialog(
+  Future<bool> deleteReadingSession(BuildContext context) async {
+    bool deleted = false;
+    await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -286,56 +290,73 @@ class ReadingSessionItem extends StatelessWidget {
               ),
               child: Text("Yes"),
               onPressed: () {
-                onDelete!();
-                Navigator.of(context).pop();
+                deleted = true;
+                onDelete!(sessions[index]);
+                Navigator.of(context).popUntil(
+                  (route) => route.settings.name == "book_page",
+                );
               },
             ),
           ],
         );
       },
     );
+    return deleted;
   }
 
   @override
   Widget build(BuildContext context) {
     NumberFormat n = NumberFormat("#.#");
+    var session = sessions[index];
     return Container(
       decoration: BoxDecoration(
         border: Border(),
       ),
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: ListTile(
-            trailing: IconButton(
-              tooltip: "delete session",
-              onPressed: () => deleteReadingSession(context),
-              icon: Icon(Icons.delete),
-            ),
-            leading: Icon(Icons.chrome_reader_mode),
-            title: Text("${session.endPage - session.startPage} pages read"),
-            subtitle: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      if (session.startTime != null)
-                        Text(timeago.format(session.startTime!)),
-                      if (session.duration != null &&
-                          session.duration!.inMicroseconds != 0)
-                        Text(
-                          session.duration!.inSeconds > 60
-                              ? "${session.duration!.inHours} hours, ${session.duration!.inMinutes % 60} minutes"
-                              : "${session.duration!.inSeconds} seconds",
-                        ),
-                    ],
-                  ),
+        child: ListTile(
+          contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return ReadingSessionDialog(
+                  sessions,
+                  index,
+                  onDelete: onDelete,
+                );
+              },
+            );
+          },
+          trailing: IconButton(
+            tooltip: "delete session",
+            onPressed: () async {
+              await deleteReadingSession(context);
+            },
+            icon: Icon(Icons.delete),
+          ),
+          leading: Icon(Icons.chrome_reader_mode),
+          title: Text("${session.endPage - session.startPage} pages read"),
+          subtitle: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    if (session.startTime != null)
+                      Text(timeago.format(session.startTime!)),
+                    if (session.duration != null &&
+                        session.duration!.inMicroseconds != 0)
+                      Text(
+                        session.duration!.inSeconds > 60
+                            ? "${session.duration!.inHours} hours, ${session.duration!.inMinutes % 60} minutes"
+                            : "${session.duration!.inSeconds} seconds",
+                      ),
+                  ],
                 ),
-                if (session.hasDuration) Text(n.format(session.pagesPerHour!)),
-              ],
-            ),
+              ),
+              if (session.hasDuration) Text(n.format(session.pagesPerHour!)),
+            ],
           ),
         ),
       ),

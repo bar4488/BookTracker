@@ -6,6 +6,7 @@ class Book {
     required this.imagePath,
     required this.pageCount,
     this.currentPage = 0,
+    this.comment,
   });
 
   String? id;
@@ -15,6 +16,8 @@ class Book {
   int pageCount;
   int currentPage;
 
+  String? comment;
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -23,17 +26,18 @@ class Book {
       'imagePath': imagePath,
       'pageCount': pageCount,
       'currentPage': currentPage,
+      'comment': comment
     };
   }
 
   factory Book.fromMap(Map<String, dynamic> map) {
     return Book(
-      id: map["id"],
-      name: map["name"],
-      writer: map["writer"],
-      pageCount: map["pageCount"],
-      imagePath: map["imagePath"],
-      currentPage: map["currentPage"] ?? 0,
-    );
+        id: map["id"],
+        name: map["name"],
+        writer: map["writer"],
+        pageCount: map["pageCount"],
+        imagePath: map["imagePath"],
+        currentPage: map["currentPage"] ?? 0,
+        comment: map["comment"]);
   }
 }

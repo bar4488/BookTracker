@@ -1,7 +1,6 @@
 import 'package:book_tracker/book_screen/book_bloc.dart';
-import 'package:book_tracker/book_screen/comment_dialog.dart';
-import 'package:book_tracker/book_screen/timer_service.dart';
 import 'package:book_tracker/models/book.dart';
+import 'package:book_tracker/book_screen/timer_service.dart';
 import 'package:book_tracker/models/reading_session.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -30,9 +29,12 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
   GlobalKey third = GlobalKey();
   DateTime? startTime;
 
-  bool? _timedSession = true;
+  bool _timedSession = true;
 
-  final TextEditingController _editingController = TextEditingController();
+  final TextEditingController _pageController = TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
+
+  final _form = GlobalKey<FormState>();
   bool empty = false;
   bool number = true;
 
@@ -43,29 +45,18 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
   }
 
   void saveSession(Duration duration) {
-    final text = _editingController.text;
-    if (text.isEmpty) {
-      setState(() {
-        empty = true;
-      });
-      return;
-    }
-    int? currentPage = int.tryParse(text);
-    if (currentPage == null) {
-      setState(() {
-        empty = false;
-        number = false;
-      });
-      return;
-    }
-    ReadingSession newSession = ReadingSession(
+    if (_form.currentState?.validate() ?? false) {
+      ReadingSession newSession = ReadingSession(
         bookId: widget.book.id!,
         startPage: widget.book.currentPage,
-        endPage: currentPage,
+        endPage: int.parse(_pageController.value.text),
         startTime: startTime ?? DateTime.now(),
-        duration: duration);
-    bloc!.addReadingSession(newSession);
-    Navigator.of(context).pop();
+        duration: duration,
+        comment: _commentController.value.text,
+      );
+      bloc!.addReadingSession(newSession);
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -88,79 +79,29 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
               Alignment.lerp(Alignment.center, Alignment.topCenter, 0.4)!,
           child: Consumer<TimerService>(
             builder: (context, service, child) {
-              return AnimatedContainer(
-                duration: Duration(milliseconds: 400),
-                padding:
-                    EdgeInsets.only(top: 64, bottom: 8, left: 16, right: 16),
-                margin: EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      "your'e currently in page ${widget.book.currentPage}",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 24),
-                    Row(
-                      children: <Widget>[
-                        Checkbox(
-                          value: _timedSession,
-                          onChanged: service.isRunning || service.finished
-                              ? null
-                              : (value) {
-                                  setState(() {
-                                    _timedSession = value;
-                                  });
-                                },
-                        ),
-                        Text(
-                          "timed session",
-                          style: TextStyle(fontSize: 16),
-                        )
-                      ],
-                    ),
-                    if (_timedSession!) TimerText(),
-                    SizedBox(height: 24),
-                    !service.finished && _timedSession!
-                        ? SizedBox()
-                        : TextField(
-                            keyboardType: TextInputType.number,
-                            controller: _editingController,
-                            decoration: InputDecoration(
-                              labelText: "what page are you on now?",
-                              errorText: empty
-                                  ? "please type the current page"
-                                  : !number
-                                      ? "please enter a number"
-                                      : null,
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                    TextButton(
-                      onPressed: () {
-                        FocusScope.of(context).requestFocus(
-                            FocusNode()); // remove focus from text field if there is
-
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return CommentDialog();
-                          },
-                        );
-                      },
-                      child: Text("add comment"),
-                    ),
-                  ],
-                ),
-                decoration: ShapeDecoration(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30)),
-                  color: Colors.white,
+              return SingleChildScrollView(
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 400),
+                  padding: EdgeInsets.only(
+                      top: 24,
+                      bottom: service.finished || !_timedSession ? 24 : 8,
+                      left: 16,
+                      right: 16),
+                  margin: EdgeInsets.symmetric(horizontal: 32),
+                  child:
+                      Consumer<TimerService>(builder: (build, service, widget) {
+                    if (service.finished || !_timedSession) {
+                      return containerAfterFinished(
+                        service.currentDuration,
+                      );
+                    }
+                    return containerBeforeFinish(service);
+                  }),
+                  decoration: ShapeDecoration(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)),
+                    color: Colors.white,
+                  ),
                 ),
               );
             },
@@ -182,13 +123,13 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
                 child: FloatingActionButton.extended(
                   key: service.isRunning
                       ? second
-                      : service.finished || _timedSession!
+                      : service.finished || _timedSession
                           ? third
                           : first,
                   backgroundColor: Theme.of(context).canvasColor,
                   onPressed: service.isRunning
                       ? service.stop
-                      : service.finished || !_timedSession!
+                      : service.finished || !_timedSession
                           ? () => saveSession(service.currentDuration)
                           : () {
                               service.start();
@@ -199,7 +140,7 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
                     child: Text(
                       service.isRunning
                           ? "Finish"
-                          : service.finished || !_timedSession!
+                          : service.finished || !_timedSession
                               ? "Save Session"
                               : "Start Reading",
                       style: TextStyle(color: Colors.black),
@@ -211,6 +152,106 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
           },
         ),
       ),
+    );
+  }
+
+  Widget containerAfterFinished(Duration? duration) {
+    return Form(
+      key: _form,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Well Done!",
+            style: TextStyle(
+              fontSize: 24,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(
+            height: 8,
+          ),
+          if (duration != null)
+            Text(
+              "${duration.inMinutes} minutes, ${duration.inSeconds % 60} seconds",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w300),
+            ),
+          SizedBox(
+            height: 8,
+          ),
+          Container(
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.grey.withOpacity(0.4),
+            ),
+            padding: EdgeInsets.all(8),
+            child: TextFormField(
+              validator: (value) {
+                if (value == null || value == "") {
+                  return "please enter a page";
+                } else {
+                  if (int.tryParse(value) == null) {
+                    return "enter a valid number";
+                  }
+                  return null;
+                }
+              },
+              controller: _pageController,
+              decoration: InputDecoration.collapsed(
+                  hintText: "What page are you on now?"),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.grey.withOpacity(0.4),
+            ),
+            padding: EdgeInsets.all(8),
+            child: TextField(
+              controller: _commentController,
+              minLines: 4,
+              maxLines: null,
+              decoration:
+                  InputDecoration.collapsed(hintText: "What did you think?"),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget containerBeforeFinish(TimerService service) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        Text(
+          "your'e currently on page ${widget.book.currentPage}",
+          style: TextStyle(
+            fontSize: 24,
+            fontStyle: FontStyle.italic,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 16),
+        TimerText(),
+        SizedBox(height: 16),
+        Visibility(
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          visible: !service.isRunning,
+          child: TextButton(
+            onPressed: () => setState(() => _timedSession = false),
+            child: Text("skip timer"),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -228,16 +269,8 @@ class TimerText extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
           Text(
-            "${formatter.format(service.currentDuration.inHours)}:${formatter.format(service.currentDuration.inMinutes % 60)}",
-            style: TextStyle(fontSize: 48),
-          ),
-          Baseline(
-            baseline: -8,
-            baselineType: TextBaseline.alphabetic,
-            child: Text(
-              ":${formatter.format(service.currentDuration.inSeconds % 60)}",
-              style: TextStyle(fontSize: 24),
-            ),
+            "${formatter.format(service.currentDuration.inHours)}:${formatter.format(service.currentDuration.inMinutes % 60)}:${formatter.format(service.currentDuration.inSeconds % 60)}",
+            style: TextStyle(fontSize: 48, fontWeight: FontWeight.w200),
           ),
         ],
       );

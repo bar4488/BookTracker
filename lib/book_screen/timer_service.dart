@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+
 class TimerService extends ChangeNotifier {
   Timer? _timer;
 
@@ -24,6 +25,12 @@ class TimerService extends ChangeNotifier {
     _startTime = DateTime.now();
 
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   void stop() {

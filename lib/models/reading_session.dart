@@ -6,6 +6,7 @@ class ReadingSession {
     required this.endPage,
     this.startTime,
     this.duration,
+    this.comment,
   });
 
   String? id;
@@ -30,6 +31,7 @@ class ReadingSession {
       'endPage': endPage,
       if (startTime != null) 'startTime': startTime!.millisecondsSinceEpoch,
       if (duration != null) 'duration': duration!.inSeconds,
+      if (comment != null) 'comment': comment,
     };
   }
 
@@ -41,6 +43,7 @@ class ReadingSession {
       endPage: map["endPage"],
       startTime: DateTime.fromMillisecondsSinceEpoch(map["startTime"]),
       duration: Duration(seconds: map["duration"]),
+      comment: map["comment"],
     );
   }
 }
