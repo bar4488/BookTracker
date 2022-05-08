@@ -28,6 +28,7 @@ class _ReadingSessionDialogState extends State<ReadingSessionDialog> {
   Widget build(BuildContext context) {
     var session = widget.sessions[currentIndex];
     var format = DateFormat('yyyy-MM-dd kk:mm');
+    NumberFormat n = NumberFormat("#.#");
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       child: ConstrainedBox(
@@ -82,17 +83,20 @@ class _ReadingSessionDialogState extends State<ReadingSessionDialog> {
                     value: "${session.duration!.inMinutes}m",
                     padding: EdgeInsets.all(8),
                   ),
-                if (session.hasDuration)
+                if (session.hasDuration && session.duration!.inMinutes == 0)
                   PropertyValueRow(
                     property: "Duration",
                     value: "${session.duration!.inSeconds}s",
                     padding: EdgeInsets.all(8),
                   ),
-                PropertyValueRow(
-                  property: "Pages per hour",
-                  value: "cde",
-                  padding: EdgeInsets.all(8),
-                ),
+                if (session.hasDuration)
+                  PropertyValueRow(
+                    property: "Pages per hour",
+                    value: n.format((session.endPage - session.startPage) /
+                        session.duration!.inSeconds *
+                        3600),
+                    padding: EdgeInsets.all(8),
+                  ),
               ],
             ),
             Padding(
