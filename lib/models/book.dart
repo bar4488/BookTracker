@@ -7,6 +7,8 @@ class Book {
     required this.pageCount,
     this.currentPage = 0,
     this.comment,
+    this.lastRead,
+    this.createdAt,
   });
 
   String? id;
@@ -15,6 +17,8 @@ class Book {
   String? imagePath;
   int pageCount;
   int currentPage;
+  DateTime? lastRead;
+  DateTime? createdAt;
 
   String? comment;
 
@@ -26,18 +30,27 @@ class Book {
       'imagePath': imagePath,
       'pageCount': pageCount,
       'currentPage': currentPage,
-      'comment': comment
+      'comment': comment,
+      'lastRead': lastRead?.millisecondsSinceEpoch,
+      'createdAt': createdAt?.millisecondsSinceEpoch,
     };
   }
 
   factory Book.fromMap(Map<String, dynamic> map) {
     return Book(
-        id: map["id"],
-        name: map["name"],
-        writer: map["writer"],
-        pageCount: map["pageCount"],
-        imagePath: map["imagePath"],
-        currentPage: map["currentPage"] ?? 0,
-        comment: map["comment"]);
+      id: map["id"],
+      name: map["name"],
+      writer: map["writer"],
+      pageCount: map["pageCount"],
+      imagePath: map["imagePath"],
+      currentPage: map["currentPage"] ?? 0,
+      comment: map["comment"],
+      lastRead: map["lastRead"] == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(map["lastRead"]),
+      createdAt: map["createdAt"] == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(map["createdAt"]),
+    );
   }
 }

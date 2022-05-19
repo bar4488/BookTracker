@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:book_tracker/book_screen/new_reading_session.dart';
 import 'package:book_tracker/book_screen/reading_session_dialog.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -64,6 +65,14 @@ class BookScreenScreenState extends State<BookScreenScreen> {
     return sum / avgs.length;
   }
 
+  double timeToFinish(List<ReadingSession> sessions) {
+    var avg = averagePagesPerHour(sessions);
+    if (avg.isNaN) {
+      return avg;
+    }
+    return max(0, (widget.book.pageCount - widget.book.currentPage) / avg);
+  }
+
   @override
   Widget build(BuildContext context) {
     ShapeBorder shape = RoundedRectangleBorder(
@@ -99,39 +108,71 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                     flex: 2,
                     child: AspectRatio(
                       aspectRatio: 3 / 4,
-                      child: Container(
-                        margin: EdgeInsets.all(16),
-                        child: ClipPath(
-                          clipper: ShapeBorderClipper(
-                            shape: shape,
+                      child: Stack(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: Hero(
+                                    tag: "cover" + widget.book.id!,
+                                    child: Container(
+                                      decoration: ShapeDecoration(
+                                        color: Colors.red,
+                                        image: widget.book.imagePath != null
+                                            ? DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: FileImage(File(
+                                                    widget.book.imagePath!)),
+                                              )
+                                            : null,
+                                        shape: shape,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 4,
+                                ),
+                                Hero(
+                                  tag: "indicator" + widget.book.id!,
+                                  child: ClipPath(
+                                    clipper: ShapeBorderClipper(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(2)),
+                                    ),
+                                    child: LinearProgressIndicator(
+                                      value: widget.book.currentPage /
+                                          widget.book.pageCount,
+                                      color: widget.book.currentPage >=
+                                              widget.book.pageCount
+                                          ? Colors.amber
+                                          : null,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          child: Stack(
-                            children: [
-                              Container(
-                                decoration: ShapeDecoration(
-                                  color: Colors.red,
-                                  image: widget.book.imagePath != null
-                                      ? DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image: FileImage(
-                                              File(widget.book.imagePath!)),
-                                        )
-                                      : null,
-                                  shape: shape,
+                          if (widget.book.currentPage >= widget.book.pageCount)
+                            Positioned(
+                              right: 8,
+                              top: 8,
+                              child: Hero(
+                                tag: "check" + widget.book.id!,
+                                child: CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor: Colors.white,
+                                  child: Icon(
+                                    Icons.check_circle,
+                                    color: Color(0xff81E500),
+                                  ),
                                 ),
                               ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                left: 0,
-                                child: LinearProgressIndicator(
-                                  value: widget.book.currentPage /
-                                      widget.book.pageCount,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                            )
+                        ],
                       ),
                     ),
                   ),
@@ -150,7 +191,7 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                             ),
                           ),
                           SizedBox(
-                            height: 8,
+                            height: 4,
                           ),
                           Text(
                             "writer: ${widget.book.writer}",
@@ -159,17 +200,17 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                             ),
                           ),
                           SizedBox(
-                            height: 8,
+                            height: 4,
                           ),
                           Text(
-                            "pages read: ${widget.book.currentPage}/${widget.book.pageCount}",
+                            "pages read: ${widget.book.currentPage}/${widget.book.pageCount}, ${widget.book.pageCount - widget.book.currentPage} left!",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.grey[800],
                             ),
                           ),
                           SizedBox(
-                            height: 8,
+                            height: 4,
                           ),
                           FutureBuilder<List<ReadingSession>>(
                             future: bloc!.sessions,
@@ -179,6 +220,50 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                               NumberFormat n = NumberFormat("#.#");
                               return Text(
                                 "pages an hour: ${n.format(averagePagesPerHour(sessions))}",
+                                style: TextStyle(
+                                  color: Colors.grey[800],
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          FutureBuilder<List<ReadingSession>>(
+                            future: bloc!.sessions,
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) return SizedBox();
+                              final sessions = snapshot.data!;
+                              NumberFormat n = NumberFormat("#.#");
+                              var hoursSpent = sessions
+                                  .where((element) => element.hasDuration)
+                                  .map(
+                                    (e) => e.duration!.inSeconds / 3600,
+                                  )
+                                  .reduce(
+                                    (value, element) => value + element,
+                                  );
+                              return Text(
+                                "time read: ${n.format(hoursSpent)} hours",
+                                style: TextStyle(
+                                  color: Colors.grey[800],
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          FutureBuilder<List<ReadingSession>>(
+                            future: bloc!.sessions,
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) return SizedBox();
+                              final sessions = snapshot.data!;
+                              NumberFormat n = NumberFormat("#.#");
+                              return Text(
+                                "time to finish: ${n.format(timeToFinish(sessions))} hours",
                                 style: TextStyle(
                                   color: Colors.grey[800],
                                   fontStyle: FontStyle.italic,
@@ -355,7 +440,8 @@ class ReadingSessionItem extends StatelessWidget {
                   ],
                 ),
               ),
-              if (session.hasDuration) Text(n.format(session.pagesPerHour!)),
+              if (session.hasDuration)
+                Text("${n.format(session.pagesPerHour!)}/h"),
             ],
           ),
         ),

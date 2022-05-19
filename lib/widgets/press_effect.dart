@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 enum PressState { pressed, hold, unpressed }
@@ -13,6 +15,7 @@ class PressEffect extends StatefulWidget {
       this.width,
       this.onTap,
       this.onLongPress,
+      this.padding,
       pressedColor})
       : pressedColor = pressedColor ?? Color.lerp(color, Colors.black, 0.2),
         super(key: key) {
@@ -29,6 +32,7 @@ class PressEffect extends StatefulWidget {
   final Color? pressedColor;
   final double? height;
   final double? width;
+  final EdgeInsets? padding;
 
   @override
   _PressEffectState createState() => _PressEffectState();
@@ -60,7 +64,10 @@ class _PressEffectState extends State<PressEffect>
       }
     });
     _animationTween = Tween(begin: 1.0, end: 0.0).animate(_animationController);
-    _animation = CurvedAnimation(curve: Curves.easeIn, reverseCurve: Curves.elasticOut, parent: _animationTween);
+    _animation = CurvedAnimation(
+        curve: Curves.easeIn,
+        reverseCurve: Curves.elasticOut,
+        parent: _animationTween);
     _animationController.addListener(() {
       setState(() {});
     });
@@ -71,13 +78,14 @@ class _PressEffectState extends State<PressEffect>
     _animationController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16 + (_animation.value - 1) * -10,
-        vertical: 16 + (_animation.value - 1) * -10,
-      ),
+      padding: (widget.padding ?? EdgeInsets.zero).add(EdgeInsets.symmetric(
+        horizontal: max(0, (_animation.value - 1) * -10),
+        vertical: max(0, (_animation.value - 1) * -10),
+      )),
       width: widget.width != null ? widget.width! + 32 : null,
       height: widget.height != null ? widget.height! + 32 : null,
       child: Material(
@@ -94,8 +102,8 @@ class _PressEffectState extends State<PressEffect>
           //onLongPress: widget.onLongPress,
           onLongPress: widget.onLongPress,
           onTapCancel: _onTapCancel,
-          child:
-              widget.child ?? widget.builder!(_animationController.value, state),
+          child: widget.child ??
+              widget.builder!(_animationController.value, state),
         ),
       ),
     );

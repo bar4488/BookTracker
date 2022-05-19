@@ -20,6 +20,7 @@ class BookBloc extends ChangeNotifier {
     List<ReadingSession> sessions = await this.sessions!;
     String result = await _db.insertReadingSession(session);
     book.currentPage = session.endPage;
+    book.lastRead = session.startTime;
     await _db.updateBook(book);
     session.id = result;
     sessions.add(session);
@@ -33,6 +34,7 @@ class BookBloc extends ChangeNotifier {
     sessions.removeWhere((b) => b.id == session.id);
     await _db.deleteReadingSession(session.id);
     book.currentPage -= session.endPage - session.startPage;
+    // ive decided to not change last read even if the session is deleted. felt more logical.
     await _db.updateBook(book);
     notifyListeners();
   }

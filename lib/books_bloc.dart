@@ -13,6 +13,7 @@ class BooksBloc extends ChangeNotifier {
 
   void addBook(Book book) async {
     List<Book> books = await this.books;
+    book.createdAt = DateTime.now();
     String id = await _db.insertBook(book);
     book.id = id;
     books.add(book);

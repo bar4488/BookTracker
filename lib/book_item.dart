@@ -54,7 +54,7 @@ class _BookItemState extends State<BookItem>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Are you sure you want to delete?"),
+          title: Text("Are you sure you want to delete ${widget.book.name}?"),
           actions: <Widget>[
             TextButton(
               child: Text("No"),
@@ -104,98 +104,115 @@ class _BookItemState extends State<BookItem>
           child: AnimatedContainer(
             duration: Duration(milliseconds: 300),
             margin: EdgeInsets.all(widget.isDeleting ? 5 : 0),
-            child: PressEffect(
-              onLongPress: widget.onLongPress,
-              onTap: !widget.isDeleting ? widget.onTap : null,
-              child: ClipPath(
-                clipper: ShapeBorderClipper(
-                  shape: shape,
-                ),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: <Widget>[
-                    Hero(
-                      tag: "cover" + widget.book.id!,
-                      child: Container(
-                        decoration: ShapeDecoration(
-                          color: Colors.red,
-                          image: widget.book.imagePath != null
-                              ? DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image:
-                                      FileImage(File(widget.book.imagePath!)),
-                                )
-                              : null,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: PressEffect(
+                      onLongPress: widget.onLongPress,
+                      onTap: !widget.isDeleting ? widget.onTap : null,
+                      child: ClipPath(
+                        clipper: ShapeBorderClipper(
                           shape: shape,
                         ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      left: 0,
-                      child: Hero(
-                        tag: "opacity" + widget.book.id.toString(),
-                        child: Container(
-                          height: 50,
-                          color: Colors.black.withOpacity(0.5),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      left: 0,
-                      child: Container(
-                        height: 50,
-                        color: Colors.transparent,
-                        child: Center(
-                          child: Hero(
-                            tag: "text" + widget.book.id.toString(),
-                            flightShuttleBuilder: (a, b, c, d, e) {
-                              return Material(
-                                color: Colors.transparent,
-                                child: FittedBox(
-                                  fit: BoxFit.contain,
-                                  child: Text(
-                                    widget.book.name,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Material(
-                              color: Colors.transparent,
-                              child: FittedBox(
-                                fit: BoxFit.fitWidth,
-                                child: Text(
-                                  widget.book.name,
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 18),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: <Widget>[
+                            Hero(
+                              tag: "cover" + widget.book.id!,
+                              child: Container(
+                                decoration: ShapeDecoration(
+                                  color: Colors.red,
+                                  image: widget.book.imagePath != null
+                                      ? DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: FileImage(
+                                              File(widget.book.imagePath!)),
+                                        )
+                                      : null,
+                                  shape: shape,
                                 ),
                               ),
                             ),
-                          ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              left: 0,
+                              child: Container(
+                                height: 50,
+                                color: Colors.black.withOpacity(0.5),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              left: 0,
+                              child: Container(
+                                height: 50,
+                                color: Colors.transparent,
+                                child: Center(
+                                  child: Hero(
+                                    tag: "text" + widget.book.id.toString(),
+                                    flightShuttleBuilder: (a, b, c, d, e) {
+                                      return Material(
+                                        color: Colors.transparent,
+                                        child: FittedBox(
+                                          fit: BoxFit.contain,
+                                          child: Text(
+                                            widget.book.name,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: FittedBox(
+                                        fit: BoxFit.fitWidth,
+                                        child: Text(
+                                          widget.book.name,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      color: widget.book.imagePath != null
+                          ? Colors.transparent
+                          : Colors.red,
+                      shape: shape,
                     ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      left: 0,
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
+                  Hero(
+                    tag: "indicator" + widget.book.id!,
+                    child: ClipPath(
+                      clipper: ShapeBorderClipper(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(2)),
+                      ),
                       child: LinearProgressIndicator(
                         value: widget.book.currentPage / widget.book.pageCount,
+                        color: widget.book.currentPage >= widget.book.pageCount
+                            ? Colors.amber
+                            : null,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              color: widget.book.imagePath != null
-                  ? Colors.transparent
-                  : Colors.red,
-              shape: shape,
             ),
           ),
         ),
@@ -236,6 +253,22 @@ class _BookItemState extends State<BookItem>
             ),
           ),
         ),
+        if (widget.book.currentPage >= widget.book.pageCount)
+          Positioned(
+            right: 8,
+            top: 8,
+            child: Hero(
+              tag: "check" + widget.book.id!,
+              child: CircleAvatar(
+                radius: 12,
+                backgroundColor: Colors.white,
+                child: Icon(
+                  Icons.check_circle,
+                  color: Color(0xff81E500),
+                ),
+              ),
+            ),
+          )
       ],
     );
   }

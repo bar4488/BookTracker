@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:intl/intl.dart' as intl;
 
 import 'package:provider/provider.dart';
 
@@ -23,6 +24,12 @@ class _AddBookPageState extends State<AddBookPage> {
   String? name;
   String? writer;
   int? pageCount;
+
+  TextDirection directionOf(String? text) {
+    return text != null && intl.Bidi.detectRtlDirectionality(text)
+        ? TextDirection.rtl
+        : TextDirection.ltr;
+  }
 
   void getImage() async {
     File? image;
@@ -136,6 +143,7 @@ class _AddBookPageState extends State<AddBookPage> {
                       name = value;
                       return null;
                     },
+                    textDirection: directionOf(name),
                     decoration: InputDecoration(
                       labelText: "name",
                     ),
@@ -149,6 +157,7 @@ class _AddBookPageState extends State<AddBookPage> {
                       writer = value;
                       return null;
                     },
+                    textDirection: directionOf(writer),
                     decoration: InputDecoration(
                       labelText: "writer",
                     ),

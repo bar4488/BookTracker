@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:intl/intl.dart' as intl;
 
 import 'package:provider/provider.dart';
 
@@ -34,6 +35,12 @@ class _EditBookPageState extends State<EditBookPage> {
     if (bloc!.book.imagePath != null) image = File(bloc!.book.imagePath!);
     bloc = widget.bloc;
     super.setState(fn);
+  }
+
+  TextDirection directionOf(String? text) {
+    return text != null && intl.Bidi.detectRtlDirectionality(text)
+        ? TextDirection.rtl
+        : TextDirection.ltr;
   }
 
   void getImage() async {
@@ -138,6 +145,7 @@ class _EditBookPageState extends State<EditBookPage> {
                       bloc!.book.name = value;
                       return null;
                     },
+                    textDirection: directionOf(bloc!.book.name),
                     initialValue: bloc!.book.name,
                     decoration: InputDecoration(
                       labelText: "name",
@@ -152,6 +160,7 @@ class _EditBookPageState extends State<EditBookPage> {
                       bloc!.book.writer = value;
                       return null;
                     },
+                    textDirection: directionOf(bloc!.book.writer),
                     initialValue: bloc!.book.writer,
                     decoration: InputDecoration(
                       labelText: "writer",

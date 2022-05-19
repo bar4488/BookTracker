@@ -92,8 +92,8 @@ class _BooksPageState extends State<BooksPage> {
                         Widget item = BookItem(
                           book: books[index],
                           isDeleting: currentlyDeleting,
-                          onTap: () {
-                            Navigator.of(context).push(
+                          onTap: () async {
+                            final value = await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => BookScreenScreen(
                                   book: books[index],
@@ -101,6 +101,7 @@ class _BooksPageState extends State<BooksPage> {
                                 settings: RouteSettings(name: "book_page"),
                               ),
                             );
+                            setState(() {});
                           },
                           onLongPress: () {
                             setState(() {
