@@ -1,4 +1,5 @@
 import 'package:book_tracker/book_screen/book_screen.dart';
+import 'package:flutter_reorderable_grid_view/widgets/reorderable_builder.dart';
 import 'auth.dart';
 import 'login_page.dart';
 import 'book_item.dart';
@@ -83,13 +84,10 @@ class _BooksPageState extends State<BooksPage> {
                       ),
                     );
                   }
-                  widget = GridView.builder(
-                      physics: BouncingScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2, childAspectRatio: 3 / 4),
-                      itemCount: books.length,
-                      itemBuilder: (context, index) {
+                  widget = ReorderableBuilder(
+                      children: List.generate(books.length, (index) {
                         Widget item = BookItem(
+                          key: ValueKey(books[index].name),
                           book: books[index],
                           isDeleting: currentlyDeleting,
                           onTap: () async {
@@ -116,6 +114,16 @@ class _BooksPageState extends State<BooksPage> {
                           },
                         );
                         return item;
+                      }),
+                      enableDraggable: false,
+                      builder: (children, controller) {
+                        return GridView(
+                          physics: BouncingScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2, childAspectRatio: 3 / 4),
+                          children: children,
+                        );
                       });
                 } else {
                   widget = Center(child: Text("loading books..."));

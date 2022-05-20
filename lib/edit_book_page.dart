@@ -1,7 +1,9 @@
 import 'package:book_tracker/book_screen/book_bloc.dart';
 import 'package:book_tracker/books_bloc.dart';
+import 'package:book_tracker/models/book.dart';
 import 'package:book_tracker/widgets/press_effect.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -11,7 +13,7 @@ import 'package:provider/provider.dart';
 
 class EditBookPage extends StatefulWidget {
   final String title = "Add Book";
-  final BookBloc? bloc;
+  final BookBloc bloc;
 
   const EditBookPage(this.bloc, {Key? key}) : super(key: key);
 
@@ -20,21 +22,15 @@ class EditBookPage extends StatefulWidget {
 }
 
 class _EditBookPageState extends State<EditBookPage> {
-  File? image;
   final _formKey = GlobalKey<FormState>();
-  BookBloc? bloc;
+  late BookBloc bloc;
+  late Book bookCopy;
 
   @override
   void initState() {
     bloc = widget.bloc;
+    bookCopy = Book.fromMap(bloc.book.toMap());
     super.initState();
-  }
-
-  @override
-  void setState(VoidCallback fn) {
-    if (bloc!.book.imagePath != null) image = File(bloc!.book.imagePath!);
-    bloc = widget.bloc;
-    super.setState(fn);
   }
 
   TextDirection directionOf(String? text) {
@@ -70,7 +66,7 @@ class _EditBookPageState extends State<EditBookPage> {
 
                 setState(() {
                   Navigator.of(context).pop();
-                  this.image = image;
+                  bookCopy.imagePath = image?.path;
                 });
               },
             ),
@@ -82,7 +78,7 @@ class _EditBookPageState extends State<EditBookPage> {
                         .path);
                 setState(() {
                   Navigator.of(context).pop();
-                  this.image = image;
+                  bookCopy.imagePath = image?.path;
                 });
               },
             )
@@ -122,10 +118,10 @@ class _EditBookPageState extends State<EditBookPage> {
                     ),
                     child: Container(
                       decoration: ShapeDecoration(
-                        image: image != null
+                        image: bookCopy.imagePath != null
                             ? DecorationImage(
                                 fit: BoxFit.cover,
-                                image: FileImage(image!),
+                                image: FileImage(File(bookCopy.imagePath!)),
                               )
                             : null,
                         shape: ContinuousRectangleBorder(
@@ -142,11 +138,12 @@ class _EditBookPageState extends State<EditBookPage> {
                   TextFormField(
                     validator: (value) {
                       if (value!.isEmpty) return "please enter book name";
-                      bloc!.book.name = value;
+                      bookCopy.name = value;
                       return null;
                     },
-                    textDirection: directionOf(bloc!.book.name),
-                    initialValue: bloc!.book.name,
+                    textDirection: directionOf(bookCopy.name),
+                    onChanged: (v) => setState(() {}),
+                    initialValue: bookCopy.name,
                     decoration: InputDecoration(
                       labelText: "name",
                     ),
@@ -157,11 +154,14 @@ class _EditBookPageState extends State<EditBookPage> {
                   TextFormField(
                     validator: (value) {
                       if (value!.isEmpty) return "please enter writer name";
-                      bloc!.book.writer = value;
+                      bookCopy.writer = value;
                       return null;
                     },
-                    textDirection: directionOf(bloc!.book.writer),
-                    initialValue: bloc!.book.writer,
+                    textDirection: directionOf(bookCopy.writer),
+                    onChanged: (v) => setState(() {
+                      bookCopy.writer = v;
+                    }),
+                    initialValue: bookCopy.writer,
                     decoration: InputDecoration(
                       labelText: "writer",
                     ),
@@ -176,10 +176,13 @@ class _EditBookPageState extends State<EditBookPage> {
                       if (int.tryParse(value) == null) {
                         return "number of pages must be a number";
                       }
-                      bloc!.book.pageCount = int.parse(value);
+                      bookCopy.pageCount = int.parse(value);
                       return null;
                     },
-                    initialValue: bloc!.book.pageCount.toString(),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    ],
+                    initialValue: bookCopy.pageCount.toString(),
                     decoration: InputDecoration(
                       labelText: "number of pages",
                     ),
@@ -198,7 +201,7 @@ class _EditBookPageState extends State<EditBookPage> {
         onPressed: () {
           if (_formKey.currentState!.validate()) {
             _updateBook(booksBloc);
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(true);
           }
         },
       ),
@@ -207,9 +210,9 @@ class _EditBookPageState extends State<EditBookPage> {
   }
 
   void _updateBook(BooksBloc booksBloc) {
-    bloc!.book.imagePath = image?.path;
-    booksBloc.updateBook(bloc!.book);
-    bloc!.notify();
+    booksBloc.updateBook(bookCopy);
+    bloc.book = bookCopy;
+    bloc.notify();
   }
 
   @override

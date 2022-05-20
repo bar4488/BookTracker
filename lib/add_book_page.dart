@@ -2,6 +2,7 @@ import 'package:book_tracker/books_bloc.dart';
 import 'package:book_tracker/models/book.dart';
 import 'package:book_tracker/widgets/press_effect.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -48,13 +49,6 @@ class _AddBookPageState extends State<AddBookPage> {
                     await _picker.pickImage(source: ImageSource.camera);
                 if (tmp != null) {
                   image = File((tmp).path);
-                  var decodedImage =
-                      await decodeImageFromList(await image!.readAsBytes());
-                  if (decodedImage.width > decodedImage.height) {
-                    image = await FlutterImageCompress.compressAndGetFile(
-                        image!.path, image!.path,
-                        autoCorrectionAngle: true, rotate: 90);
-                  }
                 }
 
                 setState(() {
@@ -144,6 +138,9 @@ class _AddBookPageState extends State<AddBookPage> {
                       return null;
                     },
                     textDirection: directionOf(name),
+                    onChanged: (v) => setState(() {
+                      name = v;
+                    }),
                     decoration: InputDecoration(
                       labelText: "name",
                     ),
@@ -158,6 +155,9 @@ class _AddBookPageState extends State<AddBookPage> {
                       return null;
                     },
                     textDirection: directionOf(writer),
+                    onChanged: (v) => setState(() {
+                      writer = v;
+                    }),
                     decoration: InputDecoration(
                       labelText: "writer",
                     ),
@@ -175,6 +175,9 @@ class _AddBookPageState extends State<AddBookPage> {
                       pageCount = int.parse(value);
                       return null;
                     },
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    ],
                     decoration: InputDecoration(
                       labelText: "number of pages",
                     ),

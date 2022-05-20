@@ -29,12 +29,12 @@ class BookScreenScreen extends StatefulWidget {
 
 class BookScreenScreenState extends State<BookScreenScreen> {
   BookScreenScreenState();
-  BookBloc? bloc;
+  late BookBloc bloc;
 
   @override
   void initState() {
     bloc = BookBloc(widget.book);
-    bloc!.addListener(() => setState(() {}));
+    bloc.addListener(() => setState(() {}));
     super.initState();
   }
 
@@ -84,14 +84,17 @@ class BookScreenScreenState extends State<BookScreenScreen> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.edit),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return EditBookPage(bloc);
-                  },
-                ),
-              );
+            onPressed: () async {
+              if (await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return EditBookPage(bloc);
+                      },
+                    ),
+                  ) ==
+                  true) {
+                setState(() {});
+              }
             },
           ),
         ],
@@ -213,9 +216,11 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                             height: 4,
                           ),
                           FutureBuilder<List<ReadingSession>>(
-                            future: bloc!.sessions,
+                            future: bloc.sessions,
                             builder: (context, snapshot) {
-                              if (!snapshot.hasData) return SizedBox();
+                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                return SizedBox();
+                              }
                               final sessions = snapshot.data!;
                               NumberFormat n = NumberFormat("#.#");
                               return Text(
@@ -231,9 +236,11 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                             height: 4,
                           ),
                           FutureBuilder<List<ReadingSession>>(
-                            future: bloc!.sessions,
+                            future: bloc.sessions!,
                             builder: (context, snapshot) {
-                              if (!snapshot.hasData) return SizedBox();
+                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                return SizedBox();
+                              }
                               final sessions = snapshot.data!;
                               NumberFormat n = NumberFormat("#.#");
                               var hoursSpent = sessions
@@ -257,9 +264,11 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                             height: 4,
                           ),
                           FutureBuilder<List<ReadingSession>>(
-                            future: bloc!.sessions,
+                            future: bloc.sessions,
                             builder: (context, snapshot) {
-                              if (!snapshot.hasData) return SizedBox();
+                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                return SizedBox();
+                              }
                               final sessions = snapshot.data!;
                               NumberFormat n = NumberFormat("#.#");
                               return Text(
@@ -280,7 +289,7 @@ class BookScreenScreenState extends State<BookScreenScreen> {
           Expanded(
             flex: 3,
             child: FutureBuilder<List<ReadingSession>>(
-              future: bloc!.sessions,
+              future: bloc.sessions,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   List<ReadingSession> sessions = snapshot.data!;
@@ -308,7 +317,7 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                                 sessions,
                                 index,
                                 onDelete: (session) {
-                                  bloc!.removeReadingSession(session);
+                                  bloc.removeReadingSession(session);
                                 },
                               );
                             },

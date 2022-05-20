@@ -3,7 +3,8 @@ import 'package:book_tracker/models/book.dart';
 import 'package:book_tracker/book_screen/timer_service.dart';
 import 'package:book_tracker/models/reading_session.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart' as intl;
 
 import 'package:provider/provider.dart';
 
@@ -58,6 +59,12 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
       bloc!.addReadingSession(newSession);
       Navigator.of(context).pop();
     }
+  }
+
+  TextDirection directionOf(String? text) {
+    return text != null && intl.Bidi.detectRtlDirectionality(text)
+        ? TextDirection.rtl
+        : TextDirection.ltr;
   }
 
   Future<bool> onWillPop() async {
@@ -226,6 +233,9 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
                   return null;
                 }
               },
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+              ],
               controller: _pageController,
               decoration: InputDecoration.collapsed(
                   hintText: "What page are you on now?"),
@@ -242,6 +252,8 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
               controller: _commentController,
               minLines: 4,
               maxLines: null,
+              textDirection: directionOf(_commentController.text),
+              onChanged: (v) => setState(() {}),
               decoration:
                   InputDecoration.collapsed(hintText: "What did you think?"),
             ),
@@ -284,7 +296,7 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
 }
 
 class TimerText extends StatelessWidget {
-  final NumberFormat formatter = NumberFormat("00");
+  final intl.NumberFormat formatter = intl.NumberFormat("00");
 
   TimerText({Key? key}) : super(key: key);
 
