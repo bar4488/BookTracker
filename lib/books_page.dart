@@ -93,6 +93,7 @@ class _BooksPageState extends State<BooksPage> {
                           book: books[index],
                           isDeleting: currentlyDeleting,
                           onTap: () async {
+                            // ignore: unused_local_variable
                             final value = await Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => BookScreenScreen(

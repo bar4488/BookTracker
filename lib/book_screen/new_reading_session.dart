@@ -33,6 +33,7 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
 
   final TextEditingController _pageController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
+  final TimerService timer = TimerService();
 
   final _form = GlobalKey<FormState>();
   bool empty = false;
@@ -59,97 +60,123 @@ class _NewReadingSessionScreenState extends State<NewReadingSessionScreen> {
     }
   }
 
+  Future<bool> onWillPop() async {
+    if (_timedSession && !timer.isRunning && !timer.finished) return true;
+    return (await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Are you sure?'),
+            content: Text('session will be discarded.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text('Yes'),
+              ),
+            ],
+          ),
+        )) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<TimerService>(
-      create: (_) => TimerService(),
-      child: Scaffold(
-        backgroundColor: Theme.of(context).primaryColorLight,
-        appBar: AppBar(
-          elevation: 0,
+    return ChangeNotifierProvider<TimerService>.value(
+      value: timer,
+      child: WillPopScope(
+        onWillPop: onWillPop,
+        child: Scaffold(
           backgroundColor: Theme.of(context).primaryColorLight,
-          iconTheme: IconThemeData(color: Colors.black),
-          title: Text(
-            "New Reading Sessions",
-            style: TextStyle(color: Colors.black),
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: Theme.of(context).primaryColorLight,
+            iconTheme: IconThemeData(color: Colors.black),
+            title: Text(
+              "New Reading Sessions",
+              style: TextStyle(color: Colors.black),
+            ),
           ),
-        ),
-        body: Align(
-          alignment:
-              Alignment.lerp(Alignment.center, Alignment.topCenter, 0.4)!,
-          child: Consumer<TimerService>(
-            builder: (context, service, child) {
-              return SingleChildScrollView(
-                child: AnimatedContainer(
+          body: Align(
+            alignment:
+                Alignment.lerp(Alignment.center, Alignment.topCenter, 0.4)!,
+            child: Consumer<TimerService>(
+              builder: (context, service, child) {
+                return SingleChildScrollView(
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 400),
+                    padding: EdgeInsets.only(
+                        top: 24,
+                        bottom: service.finished || !_timedSession ? 24 : 8,
+                        left: 16,
+                        right: 16),
+                    margin: EdgeInsets.symmetric(horizontal: 32),
+                    child: Consumer<TimerService>(
+                        builder: (build, service, widget) {
+                      if (service.finished || !_timedSession) {
+                        return containerAfterFinished(
+                          service.currentDuration,
+                        );
+                      }
+                      return containerBeforeFinish(service);
+                    }),
+                    decoration: ShapeDecoration(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)),
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+          floatingActionButton: Consumer<TimerService>(
+            builder: (context, service, widget) {
+              return Container(
+                margin: EdgeInsets.only(bottom: 40),
+                child: AnimatedSwitcher(
                   duration: Duration(milliseconds: 400),
-                  padding: EdgeInsets.only(
-                      top: 24,
-                      bottom: service.finished || !_timedSession ? 24 : 8,
-                      left: 16,
-                      right: 16),
-                  margin: EdgeInsets.symmetric(horizontal: 32),
-                  child:
-                      Consumer<TimerService>(builder: (build, service, widget) {
-                    if (service.finished || !_timedSession) {
-                      return containerAfterFinished(
-                        service.currentDuration,
-                      );
-                    }
-                    return containerBeforeFinish(service);
-                  }),
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                    color: Colors.white,
+                  transitionBuilder: (child, animation) {
+                    return ScaleTransition(
+                      scale: animation,
+                      child: child,
+                    );
+                  },
+                  child: FloatingActionButton.extended(
+                    key: service.isRunning
+                        ? second
+                        : service.finished || _timedSession
+                            ? third
+                            : first,
+                    backgroundColor: Theme.of(context).canvasColor,
+                    onPressed: service.isRunning
+                        ? service.stop
+                        : service.finished || !_timedSession
+                            ? () => saveSession(service.currentDuration)
+                            : () {
+                                service.start();
+                                startTime = DateTime.now();
+                              },
+                    label: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Text(
+                        service.isRunning
+                            ? "Finish"
+                            : service.finished || !_timedSession
+                                ? "Save Session"
+                                : "Start Reading",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
                   ),
                 ),
               );
             },
           ),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: Consumer<TimerService>(
-          builder: (context, service, widget) {
-            return Container(
-              margin: EdgeInsets.only(bottom: 40),
-              child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 400),
-                transitionBuilder: (child, animation) {
-                  return ScaleTransition(
-                    scale: animation,
-                    child: child,
-                  );
-                },
-                child: FloatingActionButton.extended(
-                  key: service.isRunning
-                      ? second
-                      : service.finished || _timedSession
-                          ? third
-                          : first,
-                  backgroundColor: Theme.of(context).canvasColor,
-                  onPressed: service.isRunning
-                      ? service.stop
-                      : service.finished || !_timedSession
-                          ? () => saveSession(service.currentDuration)
-                          : () {
-                              service.start();
-                              startTime = DateTime.now();
-                            },
-                  label: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: Text(
-                      service.isRunning
-                          ? "Finish"
-                          : service.finished || !_timedSession
-                              ? "Save Session"
-                              : "Start Reading",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
         ),
       ),
     );
