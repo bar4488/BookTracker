@@ -101,119 +101,165 @@ class _BookItemState extends State<BookItem>
               child: widget,
             );
           },
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 300),
-            margin: EdgeInsets.all(widget.isDeleting ? 5 : 0),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: PressEffect(
-                      onLongPress: widget.onLongPress,
-                      onTap: !widget.isDeleting ? widget.onTap : null,
-                      child: ClipPath(
-                        clipper: ShapeBorderClipper(
-                          shape: shape,
-                        ),
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: <Widget>[
-                            Hero(
-                              tag: "cover" + widget.book.id!,
-                              child: Container(
-                                decoration: ShapeDecoration(
-                                  color: Colors.red,
-                                  image: widget.book.imagePath != null
-                                      ? DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image: FileImage(
-                                              File(widget.book.imagePath!)),
-                                        )
-                                      : null,
-                                  shape: shape,
+          child: Stack(
+            children: [
+              AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                margin: EdgeInsets.all(widget.isDeleting ? 5 : 0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: PressEffect(
+                          onLongPress: widget.onLongPress,
+                          onTap: !widget.isDeleting ? widget.onTap : null,
+                          child: ClipPath(
+                            clipper: ShapeBorderClipper(
+                              shape: shape,
+                            ),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: <Widget>[
+                                Hero(
+                                  tag: "cover" + widget.book.id!,
+                                  child: Container(
+                                    decoration: ShapeDecoration(
+                                      color: Colors.red,
+                                      image: widget.book.imagePath != null
+                                          ? DecorationImage(
+                                              fit: BoxFit.cover,
+                                              image: FileImage(
+                                                  File(widget.book.imagePath!)),
+                                            )
+                                          : null,
+                                      shape: shape,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              left: 0,
-                              child: Container(
-                                height: 50,
-                                color: Colors.black.withOpacity(0.5),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              left: 0,
-                              child: Container(
-                                height: 50,
-                                color: Colors.transparent,
-                                child: Center(
-                                  child: Hero(
-                                    tag: "text" + widget.book.id.toString(),
-                                    flightShuttleBuilder: (a, b, c, d, e) {
-                                      return Material(
-                                        color: Colors.transparent,
-                                        child: FittedBox(
-                                          fit: BoxFit.contain,
-                                          child: Text(
-                                            widget.book.name,
-                                            style: TextStyle(
-                                              color: Colors.white,
+                                // TODO: should add an option to display or not in the settings page
+                                // ignore: dead_code
+                                if (false) ...[
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    left: 0,
+                                    child: Container(
+                                      height: 50,
+                                      color: Colors.black.withOpacity(0.5),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    left: 0,
+                                    child: Container(
+                                      height: 50,
+                                      color: Colors.transparent,
+                                      child: Center(
+                                        child: Hero(
+                                          tag: "text" +
+                                              widget.book.id.toString(),
+                                          flightShuttleBuilder:
+                                              (a, b, c, d, e) {
+                                            return Material(
+                                              color: Colors.transparent,
+                                              child: FittedBox(
+                                                fit: BoxFit.contain,
+                                                child: Text(
+                                                  widget.book.name,
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: FittedBox(
+                                              fit: BoxFit.fitWidth,
+                                              child: Text(
+                                                widget.book.name,
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      );
-                                    },
-                                    child: Material(
-                                      color: Colors.transparent,
-                                      child: FittedBox(
-                                        fit: BoxFit.fitWidth,
-                                        child: Text(
-                                          widget.book.name,
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 18),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
+                                ]
+                              ],
                             ),
-                          ],
+                          ),
+                          color: widget.book.imagePath != null
+                              ? Colors.transparent
+                              : Colors.red,
+                          shape: shape,
                         ),
                       ),
-                      color: widget.book.imagePath != null
-                          ? Colors.transparent
-                          : Colors.red,
-                      shape: shape,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 4,
-                  ),
-                  Hero(
-                    tag: "indicator" + widget.book.id!,
-                    child: ClipPath(
-                      clipper: ShapeBorderClipper(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(2)),
+                      SizedBox(
+                        height: 4,
                       ),
-                      child: LinearProgressIndicator(
-                        value: widget.book.currentPage / widget.book.pageCount,
-                        color: widget.book.currentPage >= widget.book.pageCount
-                            ? Colors.amber
-                            : null,
+                      Hero(
+                        tag: "indicator" + widget.book.id!,
+                        child: ClipPath(
+                          clipper: ShapeBorderClipper(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(2)),
+                          ),
+                          child: LinearProgressIndicator(
+                            value:
+                                widget.book.currentPage / widget.book.pageCount,
+                            color:
+                                widget.book.currentPage >= widget.book.pageCount
+                                    ? Colors.amber
+                                    : null,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+              Positioned(
+                right: 8,
+                top: 8,
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<BookStatus>(
+                    isDense: true,
+                    isExpanded: false,
+                    icon: Hero(
+                      tag: "status" + widget.book.id!,
+                      child: buildStatus(widget.book.status),
+                    ),
+                    items: [
+                      for (var status in BookStatus.values)
+                        DropdownMenuItem(
+                          child: Row(
+                            children: [
+                              buildStatus(status),
+                              Text(" ${status.name}")
+                            ],
+                          ),
+                          value: status,
+                        ),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          widget.book.status = val;
+                          bloc.updateBook(widget.book);
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         Positioned(
@@ -253,24 +299,45 @@ class _BookItemState extends State<BookItem>
             ),
           ),
         ),
-        if (widget.book.currentPage >= widget.book.pageCount)
-          Positioned(
-            right: 8,
-            top: 8,
-            child: Hero(
-              tag: "check" + widget.book.id!,
-              child: CircleAvatar(
-                radius: 12,
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.check_circle,
-                  color: Color(0xff81E500),
-                ),
-              ),
-            ),
-          )
       ],
     );
+  }
+
+  CircleAvatar buildStatus(BookStatus status) {
+    switch (status) {
+      case BookStatus.done:
+        return CircleAvatar(
+          radius: 12,
+          backgroundColor: Colors.white,
+          child: Icon(
+            Icons.check_circle,
+            color: Color(0xff81E500),
+          ),
+        );
+      case BookStatus.planning:
+        return CircleAvatar(
+          radius: 12,
+          backgroundColor: Colors.white,
+          child: Icon(
+            Icons.info,
+            color: Color(0xff2B99FF),
+          ),
+        );
+      case BookStatus.reading:
+        return CircleAvatar(
+          radius: 12,
+          backgroundColor: Colors.white,
+          child: CircleAvatar(
+            radius: 10,
+            backgroundColor: Color(0xffFF7A00),
+            child: Icon(
+              Icons.more_horiz,
+              size: 20,
+              color: Colors.white,
+            ),
+          ),
+        );
+    }
   }
 
   @override

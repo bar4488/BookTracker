@@ -91,102 +91,102 @@ class _AddBookPageState extends State<AddBookPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: SizedBox(
-        height: double.infinity,
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Container(
-            margin: EdgeInsets.only(left: 12, right: 12, top: 22),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  PressEffect(
-                    onTap: () {
-                      getImage();
-                    },
-                    width: 108,
-                    height: 164,
-                    color: Colors.amber,
-                    shape: ContinuousRectangleBorder(
-                      borderRadius: BorderRadius.circular(70),
-                    ),
-                    child: Container(
-                      decoration: ShapeDecoration(
-                        image: image != null
-                            ? DecorationImage(
-                                fit: BoxFit.cover,
-                                image: FileImage(image!),
-                              )
-                            : null,
-                        shape: ContinuousRectangleBorder(
-                          borderRadius: BorderRadius.circular(70),
-                        ),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: const [Colors.amber, Colors.red],
-                        ),
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Container(
+          margin: EdgeInsets.only(left: 12, right: 12, top: 22),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                PressEffect(
+                  onTap: () {
+                    getImage();
+                  },
+                  width: 108,
+                  height: 164,
+                  color: Colors.amber,
+                  shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.circular(70),
+                  ),
+                  child: Container(
+                    decoration: ShapeDecoration(
+                      image: image != null
+                          ? DecorationImage(
+                              fit: BoxFit.cover,
+                              image: FileImage(image!),
+                            )
+                          : null,
+                      shape: ContinuousRectangleBorder(
+                        borderRadius: BorderRadius.circular(70),
+                      ),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: const [Colors.amber, Colors.red],
                       ),
                     ),
                   ),
-                  TextFormField(
-                    validator: (value) {
-                      if (value!.isEmpty) return "please enter book name";
-                      name = value;
-                      return null;
-                    },
-                    textDirection: directionOf(name),
-                    onChanged: (v) => setState(() {
-                      name = v;
-                    }),
-                    decoration: InputDecoration(
-                      labelText: "name",
-                    ),
+                ),
+                TextFormField(
+                  validator: (value) {
+                    if (value!.isEmpty) return "please enter book name";
+                    name = value;
+                    return null;
+                  },
+                  textDirection: directionOf(name),
+                  onChanged: (v) => setState(() {
+                    name = v;
+                  }),
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: "name",
                   ),
-                  SizedBox(
-                    height: 12,
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                TextFormField(
+                  validator: (value) {
+                    if (value!.isEmpty) return "please enter writer name";
+                    writer = value;
+                    return null;
+                  },
+                  textDirection: directionOf(writer),
+                  onChanged: (v) => setState(() {
+                    writer = v;
+                  }),
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: "writer",
                   ),
-                  TextFormField(
-                    validator: (value) {
-                      if (value!.isEmpty) return "please enter writer name";
-                      writer = value;
-                      return null;
-                    },
-                    textDirection: directionOf(writer),
-                    onChanged: (v) => setState(() {
-                      writer = v;
-                    }),
-                    decoration: InputDecoration(
-                      labelText: "writer",
-                    ),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                TextFormField(
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.next,
+                  validator: (value) {
+                    if (value!.isEmpty) return "please enter number of pages";
+                    if (int.tryParse(value) == null) {
+                      return "number of pages must be a number";
+                    }
+                    pageCount = int.parse(value);
+                    return null;
+                  },
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  ],
+                  decoration: InputDecoration(
+                    labelText: "number of pages",
                   ),
-                  SizedBox(
-                    height: 12,
-                  ),
-                  TextFormField(
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value!.isEmpty) return "please enter number of pages";
-                      if (int.tryParse(value) == null) {
-                        return "number of pages must be a number";
-                      }
-                      pageCount = int.parse(value);
-                      return null;
-                    },
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: "number of pages",
-                    ),
-                  ),
-                  SizedBox(
-                    height: 12,
-                  ),
-                ],
-              ),
+                ),
+                SizedBox(
+                  height: 72,
+                ),
+              ],
             ),
           ),
         ),

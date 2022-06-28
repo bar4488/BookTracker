@@ -21,11 +21,22 @@ class BookBloc extends ChangeNotifier {
     String result = await _db.insertReadingSession(session);
     book.currentPage = session.endPage;
     book.lastRead = session.startTime;
+    if (book.currentPage == book.pageCount) {
+      book.status = BookStatus.done;
+    }
     await _db.updateBook(book);
     session.id = result;
     sessions.add(session);
     notifyListeners();
     return result;
+  }
+
+  Future updateBook(Book book) async {
+    assert(book.id == this.book.id);
+    this.book = book;
+    notifyListeners();
+    await _db.updateBook(book);
+    notifyListeners();
   }
 
   void removeReadingSession(ReadingSession session) async {

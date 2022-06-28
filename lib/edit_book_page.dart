@@ -141,6 +141,7 @@ class _EditBookPageState extends State<EditBookPage> {
                       bookCopy.name = value;
                       return null;
                     },
+                    textInputAction: TextInputAction.done,
                     textDirection: directionOf(bookCopy.name),
                     onChanged: (v) => setState(() {}),
                     initialValue: bookCopy.name,
@@ -161,6 +162,7 @@ class _EditBookPageState extends State<EditBookPage> {
                     onChanged: (v) => setState(() {
                       bookCopy.writer = v;
                     }),
+                    textInputAction: TextInputAction.done,
                     initialValue: bookCopy.writer,
                     decoration: InputDecoration(
                       labelText: "writer",

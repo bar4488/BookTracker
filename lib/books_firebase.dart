@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:book_tracker/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart' as c;
 
 import 'models/book.dart';
 import 'models/reading_session.dart';
@@ -30,7 +31,14 @@ class FirebaseDatabase {
 
   Future<List<Book>> books() async {
     QuerySnapshot s = await (await booksCollection).get();
-    return s.docs.map((e) => Book.fromMap(e.data() as Map<String, dynamic>)).toList();
+    var books = s.docs
+        .map((e) => Book.fromMap(e.data() as Map<String, dynamic>))
+        .toList();
+    c.mergeSort<Book>(
+      books,
+      compare: (p0, p1) => (p0.isFinished ? 1 : 0) - (p1.isFinished ? 1 : 0),
+    );
+    return books;
   }
 
   Future updateBook(Book book) async {
@@ -60,7 +68,9 @@ class FirebaseDatabase {
 
   Future<List<ReadingSession>> readingSessions() async {
     QuerySnapshot s = await (await readingSessionsCollection).get();
-    return s.docs.map((e) => ReadingSession.fromMap(e.data() as Map<String, dynamic>)).toList()
+    return s.docs
+        .map((e) => ReadingSession.fromMap(e.data() as Map<String, dynamic>))
+        .toList()
       ..sort((a, b) => (a.startTime!.millisecondsSinceEpoch)
           .compareTo(b.startTime!.millisecondsSinceEpoch));
   }
@@ -90,7 +100,9 @@ class FirebaseDatabase {
         .doc(bookId)
         .collection("readingSession")
         .get();
-    return s.docs.map((e) => ReadingSession.fromMap(e.data() as Map<String, dynamic>)).toList()
+    return s.docs
+        .map((e) => ReadingSession.fromMap(e.data() as Map<String, dynamic>))
+        .toList()
       ..sort((a, b) => (a.startTime!.millisecondsSinceEpoch)
           .compareTo(b.startTime!.millisecondsSinceEpoch));
   }

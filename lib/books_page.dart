@@ -128,12 +128,7 @@ class _BooksPageState extends State<BooksPage> {
                 } else {
                   widget = Center(child: Text("loading books..."));
                 }
-                return AnimatedSwitcher(
-                  duration: Duration(milliseconds: 1500),
-                  switchInCurve: Curves.easeIn,
-                  switchOutCurve: Curves.easeOut,
-                  child: widget,
-                );
+                return widget;
               },
             ),
             /*

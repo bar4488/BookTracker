@@ -159,22 +159,40 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                               ],
                             ),
                           ),
-                          if (widget.book.currentPage >= widget.book.pageCount)
-                            Positioned(
-                              right: 8,
-                              top: 8,
-                              child: Hero(
-                                tag: "check" + widget.book.id!,
-                                child: CircleAvatar(
-                                  radius: 12,
-                                  backgroundColor: Colors.white,
-                                  child: Icon(
-                                    Icons.check_circle,
-                                    color: Color(0xff81E500),
-                                  ),
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<BookStatus>(
+                                isDense: true,
+                                isExpanded: false,
+                                icon: Hero(
+                                  tag: "status" + widget.book.id!,
+                                  child: buildStatus(widget.book.status),
                                 ),
+                                items: [
+                                  for (var status in BookStatus.values)
+                                    DropdownMenuItem(
+                                      child: Row(
+                                        children: [
+                                          buildStatus(status),
+                                          Text(" ${status.name}")
+                                        ],
+                                      ),
+                                      value: status,
+                                    ),
+                                ],
+                                onChanged: (val) {
+                                  if (val != null) {
+                                    setState(() {
+                                      widget.book.status = val;
+                                      bloc.updateBook(widget.book);
+                                    });
+                                  }
+                                },
                               ),
-                            )
+                            ),
+                          )
                         ],
                       ),
                     ),
@@ -218,7 +236,9 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                           FutureBuilder<List<ReadingSession>>(
                             future: bloc.sessions,
                             builder: (context, snapshot) {
-                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                              if (!snapshot.hasData ||
+                                  snapshot.data!.isEmpty ||
+                                  snapshot.data!.every((s) => !s.hasDuration)) {
                                 return SizedBox();
                               }
                               final sessions = snapshot.data!;
@@ -238,7 +258,9 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                           FutureBuilder<List<ReadingSession>>(
                             future: bloc.sessions!,
                             builder: (context, snapshot) {
-                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                              if (!snapshot.hasData ||
+                                  snapshot.data!.isEmpty ||
+                                  snapshot.data!.every((s) => !s.hasDuration)) {
                                 return SizedBox();
                               }
                               final sessions = snapshot.data!;
@@ -266,7 +288,9 @@ class BookScreenScreenState extends State<BookScreenScreen> {
                           FutureBuilder<List<ReadingSession>>(
                             future: bloc.sessions,
                             builder: (context, snapshot) {
-                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                              if (!snapshot.hasData ||
+                                  snapshot.data!.isEmpty ||
+                                  snapshot.data!.every((s) => !s.hasDuration)) {
                                 return SizedBox();
                               }
                               final sessions = snapshot.data!;
@@ -351,6 +375,43 @@ class BookScreenScreenState extends State<BookScreenScreen> {
         onPressed: () => startNewSession(context),
       ),
     );
+  }
+
+  CircleAvatar buildStatus(BookStatus status) {
+    switch (status) {
+      case BookStatus.done:
+        return CircleAvatar(
+          radius: 12,
+          backgroundColor: Colors.white,
+          child: Icon(
+            Icons.check_circle,
+            color: Color(0xff81E500),
+          ),
+        );
+      case BookStatus.planning:
+        return CircleAvatar(
+          radius: 12,
+          backgroundColor: Colors.white,
+          child: Icon(
+            Icons.info,
+            color: Color(0xff2B99FF),
+          ),
+        );
+      case BookStatus.reading:
+        return CircleAvatar(
+          radius: 12,
+          backgroundColor: Colors.white,
+          child: CircleAvatar(
+            radius: 10,
+            backgroundColor: Color(0xffFF7A00),
+            child: Icon(
+              Icons.more_horiz,
+              size: 20,
+              color: Colors.white,
+            ),
+          ),
+        );
+    }
   }
 }
 

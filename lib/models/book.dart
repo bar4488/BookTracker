@@ -1,3 +1,9 @@
+enum BookStatus {
+  done,
+  reading,
+  planning,
+}
+
 class Book {
   Book({
     this.id,
@@ -5,6 +11,7 @@ class Book {
     required this.writer,
     required this.imagePath,
     required this.pageCount,
+    this.status = BookStatus.done,
     this.currentPage = 0,
     this.comment,
     this.lastRead,
@@ -19,8 +26,11 @@ class Book {
   int currentPage;
   DateTime? lastRead;
   DateTime? createdAt;
+  BookStatus status;
 
   String? comment;
+
+  bool get isFinished => currentPage >= pageCount;
 
   Map<String, dynamic> toMap() {
     return {
@@ -30,6 +40,7 @@ class Book {
       'imagePath': imagePath,
       'pageCount': pageCount,
       'currentPage': currentPage,
+      'status': status.name,
       'comment': comment,
       'lastRead': lastRead?.millisecondsSinceEpoch,
       'createdAt': createdAt?.millisecondsSinceEpoch,
@@ -45,6 +56,7 @@ class Book {
       imagePath: map["imagePath"],
       currentPage: map["currentPage"] ?? 0,
       comment: map["comment"],
+      status: BookStatus.values.byName(map["status"] ?? "done"),
       lastRead: map["lastRead"] == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(map["lastRead"]),
